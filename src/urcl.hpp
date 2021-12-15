@@ -39,6 +39,25 @@ namespace URCL
 {
 	using namespace Internal;
 
+	////id Label
+	////namespace URCL
+	class Label
+	{
+		private:
+			std::wstring Name;
+			unsigned long long Address;
+
+		public:
+			Label(std::wstring name, unsigned long long address)
+			{
+				Name = name;
+				Address = address;
+			}
+
+			std::wstring GetName() { return Name; }
+			unsigned long long GetAddress() { return Address; }
+	};
+
 	////id ParserError
 	////namespace URCL
 	class ParserError : public std::exception
@@ -357,25 +376,6 @@ namespace URCL
 				else if (Name == L"RUN") return HeaderType::InstructionStorage;
 				else return HeaderType::Custom;
 			}
-	};
-
-	////id Label
-	////namespace URCL
-	class Label
-	{
-		private:
-			std::wstring Name;
-			unsigned long long Address;
-
-		public:
-			Label(std::wstring name, unsigned long long address)
-			{
-				Name = name;
-				Address = address;
-			}
-
-			std::wstring GetName() { return Name; }
-			unsigned long long GetAddress() { return Address; }
 	};
 
 	////id ExportTarget
