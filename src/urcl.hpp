@@ -41,6 +41,7 @@ namespace URCL
 
 	////id Label
 	////namespace URCL
+	////description Represents a location within the URCL program.
 	class Label
 	{
 		private:
@@ -60,6 +61,7 @@ namespace URCL
 
 	////id ParserError
 	////namespace URCL
+	////description An exception throw when a parsing error occurs.
 	class ParserError : public std::exception
 	{
 		private:
@@ -88,6 +90,7 @@ namespace URCL
 
 	////id OperandType
 	////namespace URCL
+	////description Specifies types of URCL operands.
 	enum class OperandType : unsigned long
 	{
 		Custom = URCL_OperandType_None,
@@ -103,6 +106,7 @@ namespace URCL
 
 	////id HeaderType
 	////namespace URCL
+	////description Specifies types of URCL headers.
 	enum class HeaderType : unsigned long
 	{
 		Custom = 0,
@@ -115,6 +119,7 @@ namespace URCL
 
 	////id Operand
 	////namespace URCL
+	////description The abstract base class for all operands.
 	class Operand
 	{
 		public:
@@ -124,6 +129,7 @@ namespace URCL
 
 	////id NumericOperand
 	////namespace URCL
+	////description The abstract base class for operands with a numeric value.
 	class NumericOperand : public virtual Operand
 	{
 		public:
@@ -133,6 +139,7 @@ namespace URCL
 
 	////id StringOperand
 	////namespace URCL
+	////description The abstract base class for operands with a string value.
 	class StringOperand : public virtual Operand
 	{
 		public:
@@ -143,6 +150,7 @@ namespace URCL
 
 	////id AnyOperand
 	////namespace URCL
+	////description A generic string operand.
 	class AnyOperand : public StringOperand
 	{
 		private:
@@ -158,6 +166,7 @@ namespace URCL
 
 	////id IndexedRegisterOperand
 	////namespace URCL
+	////description An operand that references a general-purpose register.
 	class IndexedRegisterOperand : public NumericOperand
 	{
 		private:
@@ -179,6 +188,7 @@ namespace URCL
 
 	////id SpecialRegisterOperand
 	////namespace URCL
+	////description An operand that references a special-purpose register.
 	class SpecialRegisterOperand : public StringOperand
 	{
 		private:
@@ -198,6 +208,7 @@ namespace URCL
 
 	////id ImmediateOperand
 	////namespace URCL
+	////description An operand that is an immediate numeric value.
 	class ImmediateOperand : public NumericOperand
 	{
 		private:
@@ -219,6 +230,7 @@ namespace URCL
 
 	////id MemoryAddressOperand
 	////namespace URCL
+	////description An operand that is an immediate memory address.
 	class MemoryAddressOperand : public NumericOperand
 	{
 		private:
@@ -240,6 +252,7 @@ namespace URCL
 
 	////id LabelOperand
 	////namespace URCL
+	////description An operand that references a label address.
 	class LabelOperand : public StringOperand, public NumericOperand
 	{
 		private:
@@ -263,6 +276,7 @@ namespace URCL
 
 	////id RelativeOperand
 	////namespace URCL
+	////description An operand that references a relative address.
 	class RelativeOperand : public NumericOperand
 	{
 		private:
@@ -284,6 +298,7 @@ namespace URCL
 
 	////id PortOperand
 	////namespace URCL
+	////description An operand that references a named port.
 	class PortOperand : public StringOperand
 	{
 		private:
@@ -303,6 +318,7 @@ namespace URCL
 
 	////id Instruction
 	////namespace URCL
+	////description An operation with any number of operands.
 	class Instruction
 	{
 		private:
@@ -335,6 +351,7 @@ namespace URCL
 
 	////id Header
 	////namespace URCL
+	////description A header with an optional operand.
 	class Header
 	{
 		private:
@@ -380,6 +397,7 @@ namespace URCL
 
 	////id ExportTarget
 	////namespace URCL
+	////description An interface for exporting a finished program.
 	class ExportTarget
 	{
 		public:
@@ -389,6 +407,7 @@ namespace URCL
 
 	////id Program
 	////namespace URCL
+	////description A builder class for URCL programs.
 	class Program
 	{
 		private:
