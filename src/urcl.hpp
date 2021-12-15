@@ -127,6 +127,15 @@ namespace URCL
 	////id OperandType
 	////namespace URCL
 	////description Specifies types of URCL operands.
+	////fieldref Custom URCL_OperandType_None Specifies a user-defined operand.
+	////fieldref IndexedRegister URCL_OperandType_IndexedRegister Specifies a general-purpose register operand.
+	////fieldref SpecialRegister URCL_OperandType_SpecialRegister Specifies a special-purpose register operand.
+	////fieldref Immediate URCL_OperandType_Immediate Specifies an immediate operand.
+	////fieldref MemoryAddress URCL_OperandType_MemoryAddress Specifies an address operand.
+	////fieldref Label URCL_OperandType_Label Specifies a label operand.
+	////fieldref Relative URCL_OperandType_Relative Specifies a relative address operand.
+	////fieldref Port URCL_OperandType_Port Specifies a named port operand.
+	////fieldref Any URCL_OperandType_Any Specifies a generic operand.
 	enum class OperandType : unsigned long
 	{
 		Custom = URCL_OperandType_None,
@@ -143,6 +152,12 @@ namespace URCL
 	////id HeaderType
 	////namespace URCL
 	////description Specifies types of URCL headers.
+	////field Custom 0 Specifies a user-defined header.
+	////field Bits 1 Specifies the BITS header.
+	////field MinimumRegisters 2 Specifies the MINREG header.
+	////field MinimumHeap 3 Specifies the MINHEAP header.
+	////field MinimumStack 4 Specifies the MINSTACK header.
+	////field InstructionStorage 5 Specifies the RUN header.
 	enum class HeaderType : unsigned long
 	{
 		Custom = 0,
