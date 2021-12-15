@@ -269,22 +269,22 @@ namespace URCL
 	class LabelOperand : public StringOperand, public NumericOperand
 	{
 		private:
-			URCL::Label* Label;
+			Label* LabelRef;
 		
 		public:
-			LabelOperand(std::wstring name, unsigned long long address) { Label = new URCL::Label(name, address); }
-			LabelOperand(URCL::Label* label) { Label = label; }
-			~LabelOperand() { delete Label; }
+			LabelOperand(std::wstring name, unsigned long long address) { LabelRef = new Label(name, address); }
+			LabelOperand(Label* label) { LabelRef = label; }
+			~LabelOperand() { delete LabelRef; }
 
 			OperandType GetOperandType() { return OperandType::Label; }
 
-			long long GetSignedValue() { return (long long)Label->GetAddress(); }
-			unsigned long long GetUnsignedValue() { return Label->GetAddress(); }
+			long long GetSignedValue() { return (long long)LabelRef->GetAddress(); }
+			unsigned long long GetUnsignedValue() { return LabelRef->GetAddress(); }
 
-			std::wstring GetStringValue() { return Label->GetName(); }
+			std::wstring GetStringValue() { return LabelRef->GetName(); }
 
-			URCL::Label* GetLabel() { return Label; }
-			void SetLabel(URCL::Label* label) { Label = label; }
+			Label* GetLabel() { return LabelRef; }
+			void SetLabel(Label* label) { LabelRef = label; }
 	};
 
 	////id RelativeOperand
@@ -364,38 +364,38 @@ namespace URCL
 
 	////id Header
 	////namespace URCL
-	////description A header with an optional operand.
+	////description A header with an optional argument.
 	class Header
 	{
 		private:
 			std::wstring Name;
-			Operand* Operand;
+			Operand* Argument;
 		
 		public:
 			Header(std::wstring name)
 			{
 				Name = name;
 				URCL_StringToUpper(&name);
-				Operand = 0;
+				Argument = 0;
 			}
 
-			Header(std::wstring name, URCL::Operand* operand)
+			Header(std::wstring name, Operand* argument)
 			{
 				Name = name;
 				URCL_StringToUpper(&name);
-				Operand = operand;
+				Argument = argument;
 			}
 
 			~Header()
 			{
-				if (Operand != 0) delete Operand;
+				if (Argument != 0) delete Argument;
 			}
 
 			std::wstring GetName() { return Name; }
 
-			bool HasOperand() { return Operand != 0; }
+			bool HasOperand() { return Argument != 0; }
 
-			URCL::Operand* GetOperand() { return Operand; }
+			URCL::Operand* GetOperand() { return Argument; }
 
 			HeaderType GetHeaderType()
 			{
