@@ -49,13 +49,26 @@ namespace URCL
 			unsigned long long Address;
 
 		public:
+			////type ctor
+			////class Label
+			////namespace URCL
+			////description Creates a label given a name and an address.
 			Label(std::wstring name, unsigned long long address)
 			{
 				Name = name;
 				Address = address;
 			}
 
+			////id GetName
+			////class Label
+			////namespace URCL
+			////description Returns the name of the label.
 			std::wstring GetName() { return Name; }
+
+			////id GetAddress
+			////class Label
+			////namespace URCL
+			////description Returns the address of the label.
 			unsigned long long GetAddress() { return Address; }
 	};
 
