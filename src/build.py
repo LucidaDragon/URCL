@@ -6,6 +6,7 @@ class DocObject:
 	def __init__(self, info, decl):
 		self.Info = info
 		self.Declaration = decl
+		self.Ctors = 0
 
 def ParseDocComment(lines):
 	info = {}
@@ -132,6 +133,12 @@ def ExportDocs(dir, docs, css):
 				elif "namespace" in doc.Info:
 					owner = doc.Info["namespace"][0]
 				if len(owner) > 0: doc.Info["owner"] = [owner]
+
+				if "type" in doc.Info and doc.Info["type"][0] == "ctor":
+					index = str(docLookup[owner].Ctors)
+					doc.Info["id"][0] += index
+					doc.Info["fullid"][0] += index
+					docLookup[owner].Ctors += 1
 			
 			groups[doc.Info["fullid"][0]] = []
 			docLookup[doc.Info["fullid"][0]] = doc
