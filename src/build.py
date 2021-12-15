@@ -34,7 +34,14 @@ def Link(output, info, text=""):
 	if len(text) == 0: text = info['name'][0]
 	output.write(f"<a href=\"./{info['id'][0]}.html\">{HTML(text)}</a>")
 
-def MemberTable(output, members, useDeclaration=False):
+def GetInfoValue(info, docLookup):
+	if "value" in info: return info["value"][0]
+	if "valueref" in info:
+		if info["valueref"][0] in docLookup: return GetInfoValue(docLookup[info["valueref"][0]].Info, docLookup)
+		else: return info["valueref"][0]
+	return ""
+
+def MemberTable(output, docLookup, members, useDeclaration=False, showValue=False):
 	members = sorted(members, key=lambda member: member.Info["name"][0])
 
 	output.write("<table>")
@@ -45,16 +52,19 @@ def MemberTable(output, members, useDeclaration=False):
 		else:
 			Link(output, member.Info)
 		output.write("</td><td>")
+		if showValue:
+			output.write(f"<p>{HTML(GetInfoValue(member.Info, docLookup))}</p></td><td>")
 		AddIf(output, member.Info, "shortdesc", "<p>@info</p>")
 		output.write("</td></tr>")
 	output.write("</table>")
 
-def MemberContent(output, children):
+def MemberContent(output, docLookup, children):
 	ctors = []
 	classes = []
 	structs = []
 	macros = []
 	enums = []
+	constants = []
 	fields = []
 	functions = []
 
@@ -70,6 +80,8 @@ def MemberContent(output, children):
 			macros.append(member)
 		elif type == "enum":
 			enums.append(member)
+		elif type == "const":
+			constants.append(member)
 		elif type == "field":
 			fields.append(member)
 		elif type == "function":
@@ -77,25 +89,54 @@ def MemberContent(output, children):
 
 	if len(ctors) > 0:
 		output.write("<h2>Constructors</h2>")
-		MemberTable(output, ctors, True)
+		MemberTable(output, docLookup, ctors, useDeclaration=True)
 	if len(classes) > 0:
 		output.write("<h2>Classes</h2>")
-		MemberTable(output, classes)
+		MemberTable(output, docLookup, classes)
 	if len(structs) > 0:
 		output.write("<h2>Structures</h2>")
-		MemberTable(output, structs)
+		MemberTable(output, docLookup, structs)
 	if len(macros) > 0:
 		output.write("<h2>Macros</h2>")
-		MemberTable(output, macros)
+		MemberTable(output, docLookup, macros)
 	if len(enums) > 0:
 		output.write("<h2>Enumerations</h2>")
-		MemberTable(output, enums)
+		MemberTable(output, docLookup, enums)
+	if len(constants) > 0:
+		output.write("<h2>Constants</h2>")
+		MemberTable(output, docLookup, constants, showValue=True)
 	if len(fields) > 0:
 		output.write("<h2>Fields</h2>")
-		MemberTable(output, fields)
+		MemberTable(output, docLookup, fields)
 	if len(functions) > 0:
 		output.write("<h2>Functions</h2>")
-		MemberTable(output, functions)
+		MemberTable(output, docLookup, functions)
+
+def ShortDesc(desc):
+	return desc[:(desc.index(".") + 1)]
+
+def DocObjectFromDocField(parentDoc, field, isRef=False):
+	args = field.split(" ")
+	if len(args) >= 2:
+		result = DocObject({
+			"id": [args[0]],
+			"fullid": [parentDoc.Info["fullid"][0] + "::" + args[0]],
+			"name": [args[0]],
+			"type": ["const"],
+			"owner": [parentDoc.Info["fullid"][0]]
+		}, args[0] + " = " + args[1])
+
+		if len(args) > 2:
+			desc = " ".join(args[2:])
+			result.Info["description"] = [desc]
+			result.Info["shortdesc"] = [ShortDesc(desc)]
+
+		if isRef:
+			result.Info["valueref"] = [args[1]]
+		else:
+			result.Info["value"] = [args[1]]
+		
+		return result
 
 def ExportDocs(dir, docs, css):
 	groups = {}
@@ -119,8 +160,7 @@ def ExportDocs(dir, docs, css):
 			if not "name" in doc.Info: doc.Info["name"] = [doc.Info["id"][0]]
 			
 			if not "shortdesc" in doc.Info and "description" in doc.Info:
-				firstSentenceLength = doc.Info["description"][0].index(".") + 1
-				doc.Info["shortdesc"] = [doc.Info["description"][0][:firstSentenceLength]]
+				doc.Info["shortdesc"] = [ShortDesc(doc.Info["description"][0])]
 			
 			if not "fullid" in doc.Info: doc.Info["fullid"] = [doc.Info["id"][0]]
 			if "class" in doc.Info: doc.Info["fullid"] = [doc.Info["class"][0] + "::" + doc.Info["fullid"][0]]
@@ -134,11 +174,24 @@ def ExportDocs(dir, docs, css):
 					owner = doc.Info["namespace"][0]
 				if len(owner) > 0: doc.Info["owner"] = [owner]
 
-				if "type" in doc.Info and doc.Info["type"][0] == "ctor":
+				if doc.Info["type"][0] == "ctor":
 					index = str(docLookup[owner].Ctors)
 					doc.Info["id"][0] += index
 					doc.Info["fullid"][0] += index
 					docLookup[owner].Ctors += 1
+
+			if doc.Info["type"][0] == "enum" and ("field" in doc.Info or "fieldref" in doc.Info):
+				members = []
+				fields = []
+				reffields = []
+
+				if "field" in doc.Info: fields = doc.Info["field"]
+				if "fieldref" in doc.Info: reffields = doc.Info["fieldref"]
+
+				for field in fields: members.append(DocObjectFromDocField(doc, field))
+				for field in reffields: members.append(DocObjectFromDocField(doc, field, True))
+
+				docs += members
 			
 			groups[doc.Info["fullid"][0]] = []
 			docLookup[doc.Info["fullid"][0]] = doc
@@ -164,7 +217,7 @@ def ExportDocs(dir, docs, css):
 			AddIf(output, doc.Info, "description", "<h2>Description</h2><p>@info</p>")
 
 			children = groups[doc.Info["fullid"][0]]
-			if len(children) > 0: MemberContent(output, children)
+			if len(children) > 0: MemberContent(output, docLookup, children)
 			
 			output.write("</body><html>")
 			output.close()
