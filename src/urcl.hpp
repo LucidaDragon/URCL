@@ -36,7 +36,7 @@ namespace URCL::Internal
 
 namespace URCL
 {
-	using namespace URCL::Internal;
+	using namespace Internal;
 
 	////id ParserError
 	////namespace URCL
@@ -396,12 +396,19 @@ namespace URCL
 			std::vector<Label*> Labels;
 
 		public:
+			~Program()
+			{
+				Clear();
+			}
+
 			void Clear()
 			{
 				for (size_t i = 0; i < Instructions.size(); i++) delete Instructions[i];
 				for (size_t i = 0; i < Labels.size(); i++) delete Labels[i];
+				for (size_t i = 0; i < Headers.size(); i++) delete Headers[i];
 				Instructions.clear();
 				Labels.clear();
+				Headers.clear();
 			}
 
 			void AddSource(std::wstring source)
