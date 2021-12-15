@@ -1,8 +1,23 @@
 #ifndef URCL_Available
+
+////id urcl.h
+////type namespace
 #define URCL_Available
 
+////id URCL_malloc
+////type function
+////namespace urcl.h
+////description An interface for allocating memory. This function must be defined by the consumer if the URCL_NoDependencies macro is defined.
 void* URCL_malloc(size_t size);
+////id URCL_realloc
+////type function
+////namespace urcl.h
+////description An interface for reallocating memory. This function must be defined by the consumer if the URCL_NoDependencies macro is defined.
 void* URCL_realloc(void* ptr, size_t size);
+////id URCL_free
+////type function
+////namespace urcl.h
+////description An interface for freeing memory. This function must be defined by the consumer if the URCL_NoDependencies macro is defined.
 void URCL_free(void* ptr);
 
 #ifdef URCL_NoChar16
@@ -27,16 +42,56 @@ void URCL_free(void* ptr);
 	#define false 0
 #endif
 
+////id URCL_MaxOperands
+////namespace urcl.h
+////description The maximum number of operands allowed in an instruction.
+////value 3
 #define URCL_MaxOperands 3
 
+////id URCL_OperandType_None
+////namespace urcl.h
+////description Specifies an empty operand.
+////value 0
 #define URCL_OperandType_None 0
+////id URCL_OperandType_IndexedRegister
+////namespace urcl.h
+////description Specifies a general-purpose register operand.
+////value 1
 #define URCL_OperandType_IndexedRegister 1
+////id URCL_OperandType_SpecialRegister
+////namespace urcl.h
+////description Specifies an special-purpose register operand.
+////value 2
 #define URCL_OperandType_SpecialRegister 2
+////id URCL_OperandType_Immediate
+////namespace urcl.h
+////description Specifies an immediate operand.
+////value 3
 #define URCL_OperandType_Immediate 3
+////id URCL_OperandType_MemoryAddress
+////namespace urcl.h
+////description Specifies an address operand.
+////value 4
 #define URCL_OperandType_MemoryAddress 4
+////id URCL_OperandType_Label
+////namespace urcl.h
+////description Specifies a label operand.
+////value 5
 #define URCL_OperandType_Label 5
+////id URCL_OperandType_Relative
+////namespace urcl.h
+////description Specifies an relative address operand.
+////value 6
 #define URCL_OperandType_Relative 6
+////id URCL_OperandType_Port
+////namespace urcl.h
+////description Specifies a named port operand.
+////value 7
 #define URCL_OperandType_Port 7
+////id URCL_OperandType_Any
+////namespace urcl.h
+////description Specifies a generic operand.
+////value 8
 #define URCL_OperandType_Any 8
 
 typedef struct URCL_OperandInfo
@@ -58,6 +113,9 @@ typedef struct URCL_LabelInfo
 	unsigned long long Address;
 } URCL_LabelInfo;
 
+////id URCL_FreeInstructions
+////namespace urcl.h
+////description Frees all instructions in the specified array.
 void URCL_FreeInstructions(URCL_InstructionInfo* instructions, unsigned long count)
 {
 	for (unsigned long i = 0; i < count; i++)
@@ -78,27 +136,77 @@ void URCL_FreeInstructions(URCL_InstructionInfo* instructions, unsigned long cou
 	}
 }
 
+////id URCL_FreeLabels
+////namespace urcl.h
+////description Frees all labels in the specified array.
 void URCL_FreeLabels(URCL_LabelInfo* labels, unsigned long count)
 {
 	for (unsigned long i = 0; i < count; i++) URCL_free(labels[i].Name);
 }
 
+////id URCL_Register_StackPointer
+////namespace urcl.h
+////description Specifies the stack pointer register.
+////value 0
 #define URCL_Register_StackPointer 0
+////id URCL_Register_StackPointer
+////namespace urcl.h
+////description Specifies the program counter register.
+////value 1
 #define URCL_Register_ProgramCounter 1
 
+////id URCL_Prefixes_Instruction
+////namespace urcl.h
+////description The allowed prefix characters for instructions.
 const URCL_Char* URCL_Prefixes_Instruction = u"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+////id URCL_Prefixes_Macro
+////namespace urcl.h
+////description The allowed prefix characters for macros.
 const URCL_Char* URCL_Prefixes_Macro = u"@";
+////id URCL_Prefixes_Label
+////namespace urcl.h
+////description The allowed prefix characters for labels.
 const URCL_Char* URCL_Prefixes_Label = u".";
+////id URCL_Prefixes_Port
+////namespace urcl.h
+////description The allowed prefix characters for ports.
 const URCL_Char* URCL_Prefixes_Port = u"%";
+////id URCL_Prefixes_Immediate
+////namespace urcl.h
+////description The allowed prefix characters for immediates.
 const URCL_Char* URCL_Prefixes_Immediate = u"0123456789";
+////id URCL_Prefixes_Relative
+////namespace urcl.h
+////description The allowed prefix characters for relative addresses.
 const URCL_Char* URCL_Prefixes_Relative = u"~";
+////id URCL_Prefixes_Memory
+////namespace urcl.h
+////description The allowed prefix characters for addresses.
 const URCL_Char* URCL_Prefixes_Memory = u"Mm";
+////id URCL_Prefixes_Register
+////namespace urcl.h
+////description The allowed prefix characters for registers.
 const URCL_Char* URCL_Prefixes_Register = u"Rr";
 
+////id URCL_Header_Bits
+////namespace urcl.h
+////description The name of the BITS header.
 const URCL_Char* URCL_Header_Bits = u"BITS";
+////id URCL_Header_MinimumRegisters
+////namespace urcl.h
+////description The name of the MINREG header.
 const URCL_Char* URCL_Header_MinimumRegisters = u"MINREG";
+////id URCL_Header_MinimumHeap
+////namespace urcl.h
+////description The name of the MINHEAP header.
 const URCL_Char* URCL_Header_MinimumHeap = u"MINHEAP";
+////id URCL_Header_MinimumStack
+////namespace urcl.h
+////description The name of the MINSTACK header.
 const URCL_Char* URCL_Header_MinimumStack = u"MINSTACK";
+////id URCL_Header_InstructionStorage
+////namespace urcl.h
+////description The name of the RUN header.
 const URCL_Char* URCL_Header_InstructionStorage = u"RUN";
 
 const URCL_Char* URCL_Error_NoError = u"No error message has been set.";
@@ -127,6 +235,10 @@ struct URCL_ErrorInfo
 	const URCL_Char* Message;
 };
 
+////id URCL_Error
+////namespace urcl.h
+////type field
+////description The last error reported by the parser.
 struct URCL_ErrorInfo URCL_Error = { false, 0, 0, u"No error message has been set." };
 
 void URCL_ResetError()
