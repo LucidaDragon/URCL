@@ -30,9 +30,12 @@ def HTML(text):
 def AddIf(output, info, key, str):
 	if key in info: output.write(str.replace("@info", HTML(info[key][0])))
 
+def FileName(info):
+	return info["fullid"][0].replace("::", "_") + ".html"
+
 def Link(output, info, text=""):
 	if len(text) == 0: text = info['name'][0]
-	output.write(f"<a href=\"./{info['id'][0]}.html\">{HTML(text)}</a>")
+	output.write(f"<a href=\"./{FileName(info)}\">{HTML(text)}</a>")
 
 def GetInfoValue(info, docLookup):
 	if "value" in info: return info["value"][0]
@@ -59,6 +62,7 @@ def MemberTable(output, docLookup, members, useDeclaration=False, showValue=Fals
 	output.write("</table>")
 
 def MemberContent(output, docLookup, children):
+	namespaces = []
 	ctors = []
 	classes = []
 	structs = []
@@ -70,7 +74,9 @@ def MemberContent(output, docLookup, children):
 
 	for member in children:
 		type = member.Info["type"][0]
-		if type == "ctor":
+		if type == "namespace":
+			namespaces.append(member)
+		elif type == "ctor":
 			ctors.append(member)
 		elif type == "class":
 			classes.append(member)
@@ -87,6 +93,9 @@ def MemberContent(output, docLookup, children):
 		elif type == "function":
 			functions.append(member)
 
+	if len(namespaces) > 0:
+		output.write("<h2>Namespaces</h2>")
+		MemberTable(output, docLookup, namespaces)
 	if len(ctors) > 0:
 		output.write("<h2>Constructors</h2>")
 		MemberTable(output, docLookup, ctors, useDeclaration=True)
@@ -138,9 +147,17 @@ def DocObjectFromDocField(parentDoc, field, isRef=False):
 		
 		return result
 
-def ExportDocs(dir, docs, css):
+def ExportDocs(dir, name, docs, css):
+	docs = docs[:]
 	groups = {}
 	docLookup = {}
+
+	docs.append(DocObject({
+		"id": ["global"],
+		"name": [name],
+		"fullid": ["global"],
+		"type": ["rootnamespace"]
+	}, ""))
 
 	for doc in docs:
 		if not "type" in doc.Info:
@@ -148,6 +165,7 @@ def ExportDocs(dir, docs, css):
 			elif doc.Declaration.startswith("class"): doc.Info["type"] = ["class"]
 			elif doc.Declaration.startswith("struct"): doc.Info["type"] = ["struct"]
 			elif doc.Declaration.startswith("enum"): doc.Info["type"] = ["enum"]
+			elif doc.Declaration.startswith("const"): doc.Info["type"] = ["const"]
 			elif doc.Declaration.startswith("#define"): doc.Info["type"] = ["macro"]
 			elif doc.Declaration.startswith("virtual"): doc.Info["type"] = ["function"]
 			elif doc.Declaration.endswith(";"): doc.Info["type"] = ["field"]
@@ -162,9 +180,12 @@ def ExportDocs(dir, docs, css):
 			if not "shortdesc" in doc.Info and "description" in doc.Info:
 				doc.Info["shortdesc"] = [ShortDesc(doc.Info["description"][0])]
 			
-			if not "fullid" in doc.Info: doc.Info["fullid"] = [doc.Info["id"][0]]
-			if "class" in doc.Info: doc.Info["fullid"] = [doc.Info["class"][0] + "::" + doc.Info["fullid"][0]]
-			if "namespace" in doc.Info: doc.Info["fullid"] = [doc.Info["namespace"][0] + "::" + doc.Info["fullid"][0]]
+			if doc.Info["type"][0] == "namespace" and not "namespace" in doc.Info: doc.Info["owner"] = ["global"]
+
+			if not "fullid" in doc.Info:
+				doc.Info["fullid"] = [doc.Info["id"][0]]
+				if "class" in doc.Info: doc.Info["fullid"] = [doc.Info["class"][0] + "::" + doc.Info["fullid"][0]]
+				if "namespace" in doc.Info: doc.Info["fullid"] = [doc.Info["namespace"][0] + "::" + doc.Info["fullid"][0]]
 
 			if not "owner" in doc.Info:
 				owner = ""
@@ -201,7 +222,7 @@ def ExportDocs(dir, docs, css):
 
 	for doc in docs:
 		if "id" in doc.Info:
-			output = open(f"{dir}/{doc.Info['id'][0]}.html", "w")
+			output = open(f"{dir}/{FileName(doc.Info)}", "w")
 			output.write(f"<html><head><title>{HTML(doc.Info['name'][0])} - URCL</title><style>{css}</style></head><body>")
 
 			output.write(f"<h1>{HTML(doc.Info['name'][0])}</h1>")
@@ -213,7 +234,7 @@ def ExportDocs(dir, docs, css):
 				output.write("<div><sub>Class: ")
 				Link(output, docLookup[doc.Info["owner"][0]].Info)
 				output.write("</sub></div>")
-			output.write(f"<h2>Declaration</h2><code>{HTML(doc.Declaration)}</code>")
+			if len(doc.Declaration) > 0: output.write(f"<h2>Declaration</h2><code>{HTML(doc.Declaration)}</code>")
 			AddIf(output, doc.Info, "description", "<h2>Description</h2><p>@info</p>")
 
 			children = groups[doc.Info["fullid"][0]]
@@ -222,7 +243,7 @@ def ExportDocs(dir, docs, css):
 			output.write("</body><html>")
 			output.close()
 
-def PreprocessC(csource, cdestination, css):
+def PreprocessC(csource, cdestination, name, css):
 	rawLines = csource.readlines()
 	docs = []
 
@@ -244,11 +265,11 @@ def PreprocessC(csource, cdestination, css):
 			docLines.clear()
 			nextLineIsDoc = False
 	
-	ExportDocs("./release/c/docs", docs, css)
-	return rawLines
+	ExportDocs("./release/c/docs", name, docs, css)
+	return rawLines, docs
 
-def InjectCIntoCPPAndPreprocess(clines, cppsource, cppdestination, css):
-	docs = []
+def InjectCIntoCPPAndPreprocess(clines, cdocs, cppsource, cppdestination, name, css):
+	docs = cdocs
 
 	docLines = []
 	nextLineIsDoc = False
@@ -273,7 +294,7 @@ def InjectCIntoCPPAndPreprocess(clines, cppsource, cppdestination, css):
 			docLines.clear()
 			nextLineIsDoc = False
 	
-	ExportDocs("./release/cpp/docs", docs, css)
+	ExportDocs("./release/cpp/docs", name, docs, css)
 
 if not os.path.isdir("./src"):
 	print("Source directory not found! Make sure you run this script from the project root directory.")
@@ -283,6 +304,7 @@ os.makedirs("./release/c/docs", exist_ok=True)
 os.makedirs("./release/cpp/docs", exist_ok=True)
 os.makedirs("./release/python/docs", exist_ok=True)
 
+name = "URCL Parser"
 doccss = open("./src/docs.css", "r")
 css = doccss.read().replace("\n", "")
 doccss.close()
@@ -293,8 +315,8 @@ cppext = open("./src/urcl.hpp", "r")
 c = open("./release/c/urcl.h", "w", newline='\n')
 cpp = open("./release/cpp/urcl.hpp", "w", newline='\n')
 
-clines = PreprocessC(csource, c, css)
-InjectCIntoCPPAndPreprocess(clines, cppext, cpp, css)
+clines, cdocs = PreprocessC(csource, c, name, css)
+InjectCIntoCPPAndPreprocess(clines, cdocs, cppext, cpp, name, css)
 
 csource.close()
 cppext.close()
