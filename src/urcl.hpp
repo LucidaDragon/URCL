@@ -52,7 +52,7 @@ namespace URCL
 			////type ctor
 			////class Label
 			////namespace URCL
-			////description Creates a label given a name and an address.
+			////description Creates a label with the specified name and address.
 			Label(std::wstring name, unsigned long long address)
 			{
 				Name = name;
@@ -83,6 +83,10 @@ namespace URCL
 			unsigned long Length;
 
 		public:
+			////type ctor
+			////class ParserError
+			////namespace URCL
+			////description Creates a ParserError with the specified message.
 			ParserError(std::wstring message)
 			{
 				Message = message;
@@ -90,6 +94,10 @@ namespace URCL
 				Length = 0;
 			}
 
+			////type ctor
+			////class ParserError
+			////namespace URCL
+			////description Creates a ParserError with the specified message, source position, and source length.
 			ParserError(std::wstring message, unsigned long position, unsigned long length)
 			{
 				Message = message;
@@ -97,8 +105,23 @@ namespace URCL
 				Length = length;
 			}
 
+			////id GetMessage
+			////class ParserError
+			////namespace URCL
+			////description Returns the reported message.
 			std::wstring GetMessage() { return Message; }
+
+			////id GetPosition
+			////class ParserError
+			////namespace URCL
+			////description Returns the position in source where the parsing error occurred.
 			unsigned long long GetPosition() { return Position; }
+
+			////id GetLength
+			////class ParserError
+			////namespace URCL
+			////description Returns the length of source that the parsing error occurred in.
+			unsigned long long GetLength() { return Length; }
 	};
 
 	////id OperandType
