@@ -127,15 +127,15 @@ namespace URCL
 	////id OperandType
 	////namespace URCL
 	////description Specifies types of URCL operands.
-	////fieldref Custom URCL_OperandType_None Specifies a user-defined operand.
-	////fieldref IndexedRegister URCL_OperandType_IndexedRegister Specifies a general-purpose register operand.
-	////fieldref SpecialRegister URCL_OperandType_SpecialRegister Specifies a special-purpose register operand.
-	////fieldref Immediate URCL_OperandType_Immediate Specifies an immediate operand.
-	////fieldref MemoryAddress URCL_OperandType_MemoryAddress Specifies an address operand.
-	////fieldref Label URCL_OperandType_Label Specifies a label operand.
-	////fieldref Relative URCL_OperandType_Relative Specifies a relative address operand.
-	////fieldref Port URCL_OperandType_Port Specifies a named port operand.
-	////fieldref Any URCL_OperandType_Any Specifies a generic operand.
+	////fieldref Custom urcl.h::URCL_OperandType_None Specifies a user-defined operand.
+	////fieldref IndexedRegister urcl.h::URCL_OperandType_IndexedRegister Specifies a general-purpose register operand.
+	////fieldref SpecialRegister urcl.h::URCL_OperandType_SpecialRegister Specifies a special-purpose register operand.
+	////fieldref Immediate urcl.h::URCL_OperandType_Immediate Specifies an immediate operand.
+	////fieldref MemoryAddress urcl.h::URCL_OperandType_MemoryAddress Specifies an address operand.
+	////fieldref Label urcl.h::URCL_OperandType_Label Specifies a label operand.
+	////fieldref Relative urcl.h::URCL_OperandType_Relative Specifies a relative address operand.
+	////fieldref Port urcl.h::URCL_OperandType_Port Specifies a named port operand.
+	////fieldref Any urcl.h::URCL_OperandType_Any Specifies a generic operand.
 	enum class OperandType : unsigned long
 	{
 		Custom = URCL_OperandType_None,
