@@ -38,6 +38,8 @@ namespace URCL
 {
 	using namespace URCL::Internal;
 
+	////id ParserError
+	////namespace URCL
 	class ParserError : public std::exception
 	{
 		private:
@@ -64,6 +66,8 @@ namespace URCL
 			unsigned long long GetPosition() { return Position; }
 	};
 
+	////id OperandType
+	////namespace URCL
 	enum class OperandType : unsigned long
 	{
 		Custom = URCL_OperandType_None,
@@ -77,6 +81,8 @@ namespace URCL
 		Any = URCL_OperandType_Any
 	};
 
+	////id HeaderType
+	////namespace URCL
 	enum class HeaderType : unsigned long
 	{
 		Custom = 0,
@@ -87,6 +93,8 @@ namespace URCL
 		InstructionStorage = 5
 	};
 
+	////id Operand
+	////namespace URCL
 	class Operand
 	{
 		public:
@@ -94,6 +102,8 @@ namespace URCL
 			virtual std::wstring ToString() = 0;
 	};
 
+	////id NumericOperand
+	////namespace URCL
 	class NumericOperand : public virtual Operand
 	{
 		public:
@@ -101,6 +111,8 @@ namespace URCL
 			virtual unsigned long long GetUnsignedValue() = 0;
 	};
 
+	////id StringOperand
+	////namespace URCL
 	class StringOperand : public virtual Operand
 	{
 		public:
@@ -109,6 +121,8 @@ namespace URCL
 			std::wstring ToString() { return GetStringValue(); }
 	};
 
+	////id AnyOperand
+	////namespace URCL
 	class AnyOperand : public StringOperand
 	{
 		private:
@@ -122,6 +136,8 @@ namespace URCL
 			std::wstring GetStringValue() { return Value; }
 	};
 
+	////id IndexedRegisterOperand
+	////namespace URCL
 	class IndexedRegisterOperand : public NumericOperand
 	{
 		private:
@@ -141,6 +157,8 @@ namespace URCL
 			}
 	};
 
+	////id SpecialRegisterOperand
+	////namespace URCL
 	class SpecialRegisterOperand : public StringOperand
 	{
 		private:
@@ -158,6 +176,8 @@ namespace URCL
 			std::wstring GetStringValue() { return Name; }
 	};
 
+	////id ImmediateOperand
+	////namespace URCL
 	class ImmediateOperand : public NumericOperand
 	{
 		private:
@@ -177,6 +197,8 @@ namespace URCL
 			}
 	};
 
+	////id MemoryAddressOperand
+	////namespace URCL
 	class MemoryAddressOperand : public NumericOperand
 	{
 		private:
@@ -196,6 +218,8 @@ namespace URCL
 			}
 	};
 
+	////id LabelOperand
+	////namespace URCL
 	class LabelOperand : public StringOperand, public NumericOperand
 	{
 		private:
@@ -217,6 +241,8 @@ namespace URCL
 			void SetLabel(URCL::Label* label) { Label = label; }
 	};
 
+	////id RelativeOperand
+	////namespace URCL
 	class RelativeOperand : public NumericOperand
 	{
 		private:
@@ -236,6 +262,8 @@ namespace URCL
 			}
 	};
 
+	////id PortOperand
+	////namespace URCL
 	class PortOperand : public StringOperand
 	{
 		private:
@@ -253,6 +281,8 @@ namespace URCL
 			std::wstring GetStringValue() { return Port; }
 	};
 
+	////id Instruction
+	////namespace URCL
 	class Instruction
 	{
 		private:
@@ -283,6 +313,8 @@ namespace URCL
 			void AddOperand(Operand* operand) { Operands.push_back(operand); }
 	};
 
+	////id Header
+	////namespace URCL
 	class Header
 	{
 		private:
@@ -326,6 +358,8 @@ namespace URCL
 			}
 	};
 
+	////id Label
+	////namespace URCL
 	class Label
 	{
 		private:
@@ -343,6 +377,8 @@ namespace URCL
 			unsigned long long GetAddress() { return Address; }
 	};
 
+	////id ExportTarget
+	////namespace URCL
 	class ExportTarget
 	{
 		public:
@@ -350,6 +386,8 @@ namespace URCL
 			virtual void AddLabel(Label* label) = 0;
 	};
 
+	////id Program
+	////namespace URCL
 	class Program
 	{
 		private:
@@ -521,6 +559,18 @@ namespace URCL
 			void AddLabel(Label* label)
 			{
 				Labels.push_back(label);
+			}
+
+			void Export(ExportTarget* target)
+			{
+				Export(target, false);
+			}
+
+			void Export(ExportTarget* target, bool exportLabelsFirst)
+			{
+				if (exportLabelsFirst) for (Label* label : Labels) target->AddLabel(label);
+				for (Instruction* instruction : Instructions) target->Emit(instruction);
+				if (!exportLabelsFirst) for (Label* label : Labels) target->AddLabel(label);
 			}
 
 		private:
