@@ -4,25 +4,20 @@
 ////type namespace
 #define URCL_Available
 
-////id URCL_malloc
 ////type function
-////namespace urcl.h
 ////description An interface for allocating memory. This function must be defined by the consumer if the URCL_NoDependencies macro is defined.
 void* URCL_malloc(size_t size);
-////id URCL_realloc
 ////type function
-////namespace urcl.h
 ////description An interface for reallocating memory. This function must be defined by the consumer if the URCL_NoDependencies macro is defined.
 void* URCL_realloc(void* ptr, size_t size);
-////id URCL_free
 ////type function
-////namespace urcl.h
 ////description An interface for freeing memory. This function must be defined by the consumer if the URCL_NoDependencies macro is defined.
 void URCL_free(void* ptr);
 
 #ifdef URCL_NoChar16
 	typedef unsigned short URCL_Char;
 #else
+	////description Defines URCL_Char as a char16_t. URCL_Char can be defined as unsigned short instead if the URCL_NoChar16 macro is defined.
 	typedef char16_t URCL_Char;
 #endif
 
@@ -42,79 +37,64 @@ void URCL_free(void* ptr);
 	#define false 0
 #endif
 
-////id URCL_MaxOperands
-////namespace urcl.h
 ////description The maximum number of operands allowed in an instruction.
-////value 3
 #define URCL_MaxOperands 3
 
-////id URCL_OperandType_None
-////namespace urcl.h
 ////description Specifies an empty operand.
-////value 0
 #define URCL_OperandType_None 0
-////id URCL_OperandType_IndexedRegister
-////namespace urcl.h
 ////description Specifies a general-purpose register operand.
-////value 1
 #define URCL_OperandType_IndexedRegister 1
-////id URCL_OperandType_SpecialRegister
-////namespace urcl.h
 ////description Specifies an special-purpose register operand.
-////value 2
 #define URCL_OperandType_SpecialRegister 2
-////id URCL_OperandType_Immediate
-////namespace urcl.h
 ////description Specifies an immediate operand.
-////value 3
 #define URCL_OperandType_Immediate 3
-////id URCL_OperandType_MemoryAddress
-////namespace urcl.h
 ////description Specifies an address operand.
-////value 4
 #define URCL_OperandType_MemoryAddress 4
-////id URCL_OperandType_Label
-////namespace urcl.h
 ////description Specifies a label operand.
-////value 5
 #define URCL_OperandType_Label 5
-////id URCL_OperandType_Relative
-////namespace urcl.h
 ////description Specifies an relative address operand.
-////value 6
 #define URCL_OperandType_Relative 6
-////id URCL_OperandType_Port
-////namespace urcl.h
 ////description Specifies a named port operand.
-////value 7
 #define URCL_OperandType_Port 7
-////id URCL_OperandType_Any
-////namespace urcl.h
 ////description Specifies a generic operand.
-////value 8
 #define URCL_OperandType_Any 8
 
+////description Represents an URCL operand.
 typedef struct URCL_OperandInfo
 {
+	////class URCL_OperandInfo
+	////description The type of operand being represented.
 	unsigned long Type;
+	////class URCL_OperandInfo
+	////description The numeric value of the operand, if applicable.
 	unsigned long long ImmediateValue;
+	////class URCL_OperandInfo
+	////description The string value of the operand.
 	URCL_Char* StringValue;
 } URCL_OperandInfo;
 
+////description Represents an URCL instruction or header.
 typedef struct URCL_InstructionInfo
 {
+	////class URCL_InstructionInfo
+	////description The name of the instruction.
 	URCL_Char* Operation;
+	////class URCL_InstructionInfo
+	////description An array of the instruction's operands.
 	URCL_OperandInfo Operands[URCL_MaxOperands];
 } URCL_InstructionInfo;
 
+////description Represents an URCL label.
 typedef struct URCL_LabelInfo
 {
+	////class URCL_LabelInfo
+	////description The name of the label.
 	URCL_Char* Name;
+	////class URCL_LabelInfo
+	////description The address of the label.
 	unsigned long long Address;
 } URCL_LabelInfo;
 
-////id URCL_FreeInstructions
-////namespace urcl.h
 ////description Frees all instructions in the specified array.
 void URCL_FreeInstructions(URCL_InstructionInfo* instructions, unsigned long count)
 {
@@ -136,111 +116,103 @@ void URCL_FreeInstructions(URCL_InstructionInfo* instructions, unsigned long cou
 	}
 }
 
-////id URCL_FreeLabels
-////namespace urcl.h
 ////description Frees all labels in the specified array.
 void URCL_FreeLabels(URCL_LabelInfo* labels, unsigned long count)
 {
 	for (unsigned long i = 0; i < count; i++) URCL_free(labels[i].Name);
 }
 
-////id URCL_Register_StackPointer
-////namespace urcl.h
 ////description Specifies the stack pointer register.
-////value 0
 #define URCL_Register_StackPointer 0
-////id URCL_Register_StackPointer
-////namespace urcl.h
 ////description Specifies the program counter register.
-////value 1
 #define URCL_Register_ProgramCounter 1
 
-////id URCL_Prefixes_Instruction
-////namespace urcl.h
 ////description The allowed prefix characters for instructions.
 const URCL_Char* URCL_Prefixes_Instruction = u"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-////id URCL_Prefixes_Macro
-////namespace urcl.h
 ////description The allowed prefix characters for macros.
 const URCL_Char* URCL_Prefixes_Macro = u"@";
-////id URCL_Prefixes_Label
-////namespace urcl.h
 ////description The allowed prefix characters for labels.
 const URCL_Char* URCL_Prefixes_Label = u".";
-////id URCL_Prefixes_Port
-////namespace urcl.h
 ////description The allowed prefix characters for ports.
 const URCL_Char* URCL_Prefixes_Port = u"%";
-////id URCL_Prefixes_Immediate
-////namespace urcl.h
 ////description The allowed prefix characters for immediates.
 const URCL_Char* URCL_Prefixes_Immediate = u"0123456789";
-////id URCL_Prefixes_Relative
-////namespace urcl.h
 ////description The allowed prefix characters for relative addresses.
 const URCL_Char* URCL_Prefixes_Relative = u"~";
-////id URCL_Prefixes_Memory
-////namespace urcl.h
 ////description The allowed prefix characters for addresses.
 const URCL_Char* URCL_Prefixes_Memory = u"Mm";
-////id URCL_Prefixes_Register
-////namespace urcl.h
 ////description The allowed prefix characters for registers.
 const URCL_Char* URCL_Prefixes_Register = u"Rr";
 
-////id URCL_Header_Bits
-////namespace urcl.h
 ////description The name of the BITS header.
 const URCL_Char* URCL_Header_Bits = u"BITS";
-////id URCL_Header_MinimumRegisters
-////namespace urcl.h
 ////description The name of the MINREG header.
 const URCL_Char* URCL_Header_MinimumRegisters = u"MINREG";
-////id URCL_Header_MinimumHeap
-////namespace urcl.h
 ////description The name of the MINHEAP header.
 const URCL_Char* URCL_Header_MinimumHeap = u"MINHEAP";
-////id URCL_Header_MinimumStack
-////namespace urcl.h
 ////description The name of the MINSTACK header.
 const URCL_Char* URCL_Header_MinimumStack = u"MINSTACK";
-////id URCL_Header_InstructionStorage
-////namespace urcl.h
 ////description The name of the RUN header.
 const URCL_Char* URCL_Header_InstructionStorage = u"RUN";
 
+////description No error has occured.
 const URCL_Char* URCL_Error_NoError = u"No error message has been set.";
+////description The program ran out of memory while parsing.
 const URCL_Char* URCL_Error_OutOfMemory = u"Out of memory.";
+////description An operand is missing a prefix that the parser recognizes.
 const URCL_Char* URCL_Error_MissingOperandPrefix = u"Missing valid operand prefix.";
+////description A character in a hexadecimal value was not within the range [0-9,A-F,a-f].
 const URCL_Char* URCL_Error_UnexpectedHexChar = u"Unexpected character in hexadecimal value.";
+////description A character in an octal value was not within the range [0-7].
 const URCL_Char* URCL_Error_UnexpectedOctChar = u"Unexpected character in octal value.";
+////description A character in a binary value was not within the range [0-1].
 const URCL_Char* URCL_Error_UnexpectedBinChar = u"Unexpected character in binary value.";
+////description A character in a decimal value was not within the range [0-9].
 const URCL_Char* URCL_Error_UnexpectedDecChar = u"Unexpected character in decimal value.";
+////description An immediate is missing a prefix that the parser recognizes [0x,0o,0b].
 const URCL_Char* URCL_Error_UnknownImmTypePrefix = u"Unknown immediate type prefix.";
+////description A relative address operand was missing a sub-prefix within the range [+,-,0-9].
 const URCL_Char* URCL_Error_UnexpectedRelativeChar = u"Unexpected character in relative value.";
+////description A relative address operand exceeds the machine word size.
 const URCL_Char* URCL_Error_RelativeValueTooLarge = u"Relative value is too large.";
+////description A relative address operand was malformed.
 const URCL_Char* URCL_Error_InvalidRelativeValue = u"Invalid relative value.";
+////description A memory address operand was malformed.
 const URCL_Char* URCL_Error_InvalidMemoryAddress = u"Invalid memory address value.";
+////description A register operand was malformed.
 const URCL_Char* URCL_Error_InvalidRegisterIndex = u"Invalid register index.";
+////description A register operand was not a valid general-purpose register and did not match any special-purpose registers.
 const URCL_Char* URCL_Error_UnknownRegister = u"Unknown register.";
+////description A macro with the specified name was not defined by the consumer.
 const URCL_Char* URCL_Error_UnknownMacro = u"Unknown macro.";
+////description An operand was expected but not found.
 const URCL_Char* URCL_Error_ExpectedOperand = u"Expected operand.";
+////description An instruction name was expected but not found.
 const URCL_Char* URCL_Error_ExpectedOperation = u"Expected operation.";
 
+////description Represents an error that has occured in the parser.
 struct URCL_ErrorInfo
 {
+	////class URCL_ErrorInfo
+	////description True if an error has occured or false if an error has not occured.
 	bool HasError;
+	////class URCL_ErrorInfo
+	////description A pointer to the source position that the error occurred. May be null if the error has no relevant source position.
 	const URCL_Char* Position;
+	////class URCL_ErrorInfo
+	////description The length of the source region where the error occurred. May be 0 if the error has no relevant source region.
 	unsigned long Length;
+	////class URCL_ErrorInfo
+	////description A message describing the error.
 	const URCL_Char* Message;
 };
 
 ////id URCL_Error
-////namespace urcl.h
 ////type field
 ////description The last error reported by the parser.
 struct URCL_ErrorInfo URCL_Error = { false, 0, 0, u"No error message has been set." };
 
+////description Resets URCL_Error to its default state.
 void URCL_ResetError()
 {
 	URCL_Error.HasError = false;
@@ -249,6 +221,7 @@ void URCL_ResetError()
 	URCL_Error.Message = URCL_Error_NoError;
 }
 
+////description Sets URCL_Error based on the specified message, position, and length.
 void URCL_SetError(const URCL_Char* message, const URCL_Char* position, unsigned long length)
 {
 	URCL_Error.HasError = true;
@@ -257,6 +230,7 @@ void URCL_SetError(const URCL_Char* message, const URCL_Char* position, unsigned
 	URCL_Error.Message = message;
 }
 
+////description Returns true if URCL_Error is set or false otherwise.
 bool URCL_HasError()
 {
 	return URCL_Error.HasError;
@@ -324,23 +298,27 @@ bool URCL_BasicMacroHandler(void* data, const URCL_Char* name, const URCL_Char* 
 bool (*URCL_MacroHandler)(void* data, const URCL_Char* name, const URCL_Char* source, URCL_Char** result) = URCL_BasicMacroHandler;
 void* URCL_MacroHandlerData = 0;
 
+////description Disables all URCL macros.
 void URCL_ClearMacroHandler()
 {
 	URCL_MacroHandler = URCL_NoMacroHandler;
 	URCL_MacroHandlerData = 0;
 }
 
+////description Enables macro handling with the specified handler. The data parameter will be passed to the handler with each call.
 void URCL_SetMacroHandler(bool (*getMacroValue)(void* data, const URCL_Char* name, const URCL_Char* source, URCL_Char** result), void* data)
 {
 	URCL_MacroHandler = getMacroValue;
 	URCL_MacroHandlerData = data;
 }
 
+////description Enables basic macro handling. [@MAX,@SMAX,@MSB,@SMSB,@LHALF,@UHALF,@BITS]
 void URCL_UseBasicMacroHandler()
 {
 	URCL_SetMacroHandler(URCL_BasicMacroHandler, 0);
 }
 
+////description Sets the maximum number of bits per word. Returns true if the number of bits is valid or false if the number of bits exceeds the consumer system's maximum bits per word.
 bool URCL_SetTargetBits(unsigned long bits)
 {
 	if ((bits / 8) > sizeof(unsigned long long))
@@ -893,6 +871,7 @@ bool URCL_TryParseMacroOperand(const URCL_Char* value, unsigned long length, URC
 	}
 }
 
+////description Attempts to parse the specified source string into an operand. Returns true if successful or false otherwise.
 bool URCL_TryParseOperand(const URCL_Char* value, unsigned long length, bool allowHeaderFields, URCL_OperandInfo* result, unsigned long* resultLength)
 {
 	unsigned long startPadding = URCL_GetWhitespaceLength(value, length, false);
@@ -1015,6 +994,7 @@ unsigned long URCL_GetCommentLength(const URCL_Char* value, unsigned long length
 	return 0;
 }
 
+////description Returns true if the specified string matches a known header or false otherwise.
 bool URCL_IsInstructionHeaderName(URCL_Char* name, unsigned long nameLength)
 {
 	return URCL_IsStringEqualCaseInsensitive(URCL_Header_Bits, URCL_CharsLength(URCL_Header_Bits), name, nameLength) ||
@@ -1024,6 +1004,7 @@ bool URCL_IsInstructionHeaderName(URCL_Char* name, unsigned long nameLength)
 		URCL_IsStringEqualCaseInsensitive(URCL_Header_InstructionStorage, URCL_CharsLength(URCL_Header_InstructionStorage), name, nameLength);
 }
 
+////description Returns true if an instruction is a known header or false otherwise.
 bool URCL_IsInstructionHeader(URCL_InstructionInfo* instruction)
 {
 	URCL_Char* name = instruction->Operation;
@@ -1031,6 +1012,7 @@ bool URCL_IsInstructionHeader(URCL_InstructionInfo* instruction)
 	return URCL_IsInstructionHeaderName(name, nameLength);
 }
 
+////description Attempts to parse the specified source string into an instruction. Returns true if successful or false otherwise.
 bool URCL_TryParseInstruction(const URCL_Char* value, unsigned long length, URCL_InstructionInfo* result, unsigned long* resultLength)
 {
 	URCL_ResetError();
@@ -1299,11 +1281,12 @@ bool URCL_TryGrowInstructionsArray(URCL_InstructionInfo** instructions, unsigned
 	return true;
 }
 
-bool URCL_TryParseSource(const URCL_Char* source, unsigned long length, URCL_InstructionInfo** result, URCL_LabelInfo** labels, URCL_InstructionInfo** headers, unsigned long* instructionCount, unsigned long* labelCount, unsigned long* headerCount)
+////description Attempts to parse the specified source string into instructions, labels, and headers. Returns true if the parsing finished successfully or false otherwise. Instruction, label, and header arrays are only valid if the result is true.
+bool URCL_TryParseSource(const URCL_Char* source, unsigned long length, URCL_InstructionInfo** instructions, URCL_LabelInfo** labels, URCL_InstructionInfo** headers, unsigned long* instructionCount, unsigned long* labelCount, unsigned long* headerCount)
 {
 	unsigned long resultCapacity = 1;
 	unsigned long resultLength = 0;
-	*result = (URCL_InstructionInfo*)URCL_malloc(resultCapacity * sizeof(URCL_InstructionInfo));
+	*instructions = (URCL_InstructionInfo*)URCL_malloc(resultCapacity * sizeof(URCL_InstructionInfo));
 
 	unsigned long labelsCapacity = 1;
 	unsigned long labelsLength = 0;
@@ -1332,10 +1315,10 @@ bool URCL_TryParseSource(const URCL_Char* source, unsigned long length, URCL_Ins
 				if (resized == 0)
 				{
 					URCL_SetError(URCL_Error_OutOfMemory, source, offset);
-					URCL_FreeInstructions(*result, resultLength);
+					URCL_FreeInstructions(*instructions, resultLength);
 					URCL_FreeLabels(*labels, labelsLength);
 					URCL_FreeInstructions(*headers, headersLength);
-					URCL_free(*result);
+					URCL_free(*instructions);
 					URCL_free(*labels);
 					return false;
 				}
@@ -1343,12 +1326,12 @@ bool URCL_TryParseSource(const URCL_Char* source, unsigned long length, URCL_Ins
 				*labels = (URCL_LabelInfo*)resized;
 			}
 		}
-		else if ((URCL_Error.Message == URCL_Error_MissingOperandPrefix) && URCL_TryParseMacroInstruction(source, length, &((*result)[resultLength]), &offset))
+		else if ((URCL_Error.Message == URCL_Error_MissingOperandPrefix) && URCL_TryParseMacroInstruction(source, length, &((*instructions)[resultLength]), &offset))
 		{
 			URCL_ResetError();
 			generatedNewInstruction = true;
 		}
-		else if ((URCL_Error.Message == URCL_Error_MissingOperandPrefix) && URCL_TryParseInstruction(source, length, &((*result)[resultLength]), &offset))
+		else if ((URCL_Error.Message == URCL_Error_MissingOperandPrefix) && URCL_TryParseInstruction(source, length, &((*instructions)[resultLength]), &offset))
 		{
 			URCL_ResetError();
 			generatedNewInstruction = true;
@@ -1362,10 +1345,10 @@ bool URCL_TryParseSource(const URCL_Char* source, unsigned long length, URCL_Ins
 			}
 			else
 			{
-				URCL_FreeInstructions(*result, resultLength);
+				URCL_FreeInstructions(*instructions, resultLength);
 				URCL_FreeLabels(*labels, labelsLength);
 				URCL_FreeInstructions(*headers, headersLength);
-				URCL_free(*result);
+				URCL_free(*instructions);
 				URCL_free(*labels);
 				URCL_free(*headers);
 				return false;
@@ -1375,24 +1358,24 @@ bool URCL_TryParseSource(const URCL_Char* source, unsigned long length, URCL_Ins
 		if (generatedNewInstruction)
 		{
 			bool outOfMemory = false;
-			if (URCL_IsInstructionHeader(&((*result)[resultLength])))
+			if (URCL_IsInstructionHeader(&((*instructions)[resultLength])))
 			{
-				(*headers)[headersLength] = (*result)[resultLength];
+				(*headers)[headersLength] = (*instructions)[resultLength];
 				headersLength++;
 				if (headersLength == headersCapacity) outOfMemory = !URCL_TryGrowInstructionsArray(headers, &headersCapacity);
 			}
 			else
 			{
 				resultLength++;
-				if (resultLength == resultCapacity) outOfMemory = !URCL_TryGrowInstructionsArray(result, &resultCapacity);
+				if (resultLength == resultCapacity) outOfMemory = !URCL_TryGrowInstructionsArray(instructions, &resultCapacity);
 			}
 			
 			if (outOfMemory)
 			{
 				URCL_SetError(URCL_Error_OutOfMemory, source, offset);
-				URCL_FreeInstructions(*result, resultLength);
+				URCL_FreeInstructions(*instructions, resultLength);
 				URCL_FreeLabels(*labels, labelsLength);
-				URCL_free(*result);
+				URCL_free(*instructions);
 				URCL_free(*labels);
 				URCL_free(*headers);
 				return false;
@@ -1409,8 +1392,8 @@ bool URCL_TryParseSource(const URCL_Char* source, unsigned long length, URCL_Ins
 		}
 	}
 	
-	void* shrunk = URCL_realloc(*result, resultLength * sizeof(URCL_InstructionInfo));
-	if (shrunk != 0) *result = (URCL_InstructionInfo*)shrunk;
+	void* shrunk = URCL_realloc(*instructions, resultLength * sizeof(URCL_InstructionInfo));
+	if (shrunk != 0) *instructions = (URCL_InstructionInfo*)shrunk;
 
 	shrunk = URCL_realloc(*labels, labelsLength * sizeof(URCL_LabelInfo));
 	if (shrunk != 0) *labels = (URCL_LabelInfo*)shrunk;
