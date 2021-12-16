@@ -1,4 +1,4 @@
-import os
+import os, re
 
 DOC_PREFIX = "////"
 
@@ -37,6 +37,46 @@ def Link(output, info, text=""):
 	if len(text) == 0: text = info['name'][0]
 	output.write(f"<a href=\"./{FileName(info)}\">{HTML(text)}</a>")
 
+def GetClassName(decl):
+	match = re.search(r"class\s+([^\s]+)", decl)
+	if match == None: return ""
+	else: return match.group(1)
+
+def GetStructName(decl):
+	match = re.search(r"(?:typedef\s+)?struct\s+([^\s]+)", decl)
+	if match == None: return ""
+	else: return match.group(1)
+
+def GetAliasNameValue(decl):
+	match = re.search(r"typedef\s+([^\s]+\s+)*([^\s;]+);", decl)
+	if match == None: return "", ""
+	else: return match.group(2), match.group(1).strip()
+
+def GetMacroNameValue(decl):
+	match = re.search(r"^#define(?:\s+)([^\s]+)(?:\s+(.*))?$", decl)
+	if match == None: return "", ""
+	else: return match.group(1), match.group(2)
+
+def GetEnumName(decl):
+	match = re.search(r"enum\s+(?:class\s+)?([^\s]+)", decl)
+	if match == None: return ""
+	else: return match.group(1)
+
+def GetConstNameTyperefValue(decl):
+	match = re.search(r"((?:[^\s]+\s+)+)([^\s]+)\s*=\s*([^;]+)\s*;", decl)
+	if match == None: return "", "", ""
+	else: return match.group(2), match.group(1).strip(), match.group(3).strip()
+
+def GetFieldNameTyperef(decl):
+	match = re.search(r"((?:[^\s]+\s+)+)([^\s]+)\s*(?:;|=)", decl)
+	if match == None: return "", ""
+	else: return match.group(2), match.group(1).strip()
+
+def GetFunctionNameTyperef(decl):
+	match = re.search(r"(?:virtual\s+)?((?:[^\s]+\s+)+)([^\s]+)\s*\(", decl)
+	if match == None: return "", ""
+	else: return match.group(2), match.group(1).strip()
+
 def GetInfoValue(info, docLookup):
 	if "value" in info: return info["value"][0]
 	if "valueref" in info:
@@ -71,6 +111,7 @@ def MemberContent(output, docLookup, children):
 	constants = []
 	fields = []
 	functions = []
+	aliases = []
 
 	for member in children:
 		type = member.Info["type"][0]
@@ -92,6 +133,8 @@ def MemberContent(output, docLookup, children):
 			fields.append(member)
 		elif type == "function":
 			functions.append(member)
+		elif type == "alias":
+			aliases.append(member)
 
 	if len(namespaces) > 0:
 		output.write("<h2>Namespaces</h2>")
@@ -120,6 +163,9 @@ def MemberContent(output, docLookup, children):
 	if len(functions) > 0:
 		output.write("<h2>Functions</h2>")
 		MemberTable(output, docLookup, functions)
+	if len(aliases) > 0:
+		output.write("<h2>Aliases</h2>")
+		MemberTable(output, docLookup, aliases, showValue=True)
 
 def ShortDesc(desc):
 	return desc[:(desc.index(".") + 1)]
@@ -147,7 +193,7 @@ def DocObjectFromDocField(parentDoc, field, isRef=False):
 		
 		return result
 
-def ExportDocs(dir, name, docs, css):
+def ExportDocs(dir, name, docs, css, autoNamespace=None):
 	docs = docs[:]
 	groups = {}
 	docLookup = {}
@@ -161,19 +207,65 @@ def ExportDocs(dir, name, docs, css):
 
 	for doc in docs:
 		if not "type" in doc.Info:
-			if doc.Declaration.startswith("namespace"): doc.Info["type"] = ["namespace"]
-			elif doc.Declaration.startswith("class"): doc.Info["type"] = ["class"]
-			elif doc.Declaration.startswith("struct"): doc.Info["type"] = ["struct"]
-			elif doc.Declaration.startswith("enum"): doc.Info["type"] = ["enum"]
-			elif doc.Declaration.startswith("const"): doc.Info["type"] = ["const"]
-			elif doc.Declaration.startswith("#define"): doc.Info["type"] = ["macro"]
-			elif doc.Declaration.startswith("virtual"): doc.Info["type"] = ["function"]
-			elif doc.Declaration.endswith(";"): doc.Info["type"] = ["field"]
-			else: doc.Info["type"] = ["function"]
-		if doc.Info["type"][0] == "ctor" and "class" in doc.Info and not "id" in doc.Info:
+			if doc.Declaration.startswith("namespace"):
+				doc.Info["type"] = ["namespace"]
+			elif doc.Declaration.startswith("class"):
+				doc.Info["type"] = ["class"]
+			elif doc.Declaration.startswith("struct") or doc.Declaration.startswith("typedef struct"):
+				doc.Info["type"] = ["struct"]
+			elif doc.Declaration.startswith("typedef"):
+				doc.Info["type"] = ["alias"]
+			elif doc.Declaration.startswith("enum"):
+				doc.Info["type"] = ["enum"]
+			elif doc.Declaration.startswith("const") and "=" in doc.Declaration:
+				doc.Info["type"] = ["const"]
+			elif doc.Declaration.startswith("#define"):
+				doc.Info["type"] = ["macro"]
+			elif doc.Declaration.startswith("virtual"):
+				doc.Info["type"] = ["function"]
+			elif doc.Declaration.endswith(";"):
+				doc.Info["type"] = ["field"]
+			else:
+				doc.Info["type"] = ["function"]
+
+		if autoNamespace != None and doc.Info["type"][0] != "namespace" and not "namespace" in doc.Info:
+			doc.Info["namespace"] = [autoNamespace]
+
+		if doc.Info["type"][0] == "class":
+			name = GetClassName(doc.Declaration)
+			if len(name) > 0 and not "id" in doc.Info: doc.Info["id"] = [name]
+		elif doc.Info["type"][0] == "struct":
+			name = GetStructName(doc.Declaration)
+			if len(name) > 0 and not "id" in doc.Info: doc.Info["id"] = [name]
+		elif doc.Info["type"][0] == "alias":
+			name, value = GetAliasNameValue(doc.Declaration)
+			if len(name) > 0 and not "id" in doc.Info: doc.Info["id"] = [name]
+			if len(value) > 0 and not "value" in doc.Info: doc.Info["value"] = [value]
+		elif doc.Info["type"][0] == "macro":
+			name, value = GetMacroNameValue(doc.Declaration)
+			if len(name) > 0 and not "id" in doc.Info: doc.Info["id"] = [name]
+			if len(value) > 0 and not "value" in doc.Info: doc.Info["value"] = [value]
+		elif doc.Info["type"][0] == "enum":
+			name = GetEnumName(doc.Declaration)
+			if len(name) > 0 and not "id" in doc.Info: doc.Info["id"] = [name]
+		elif doc.Info["type"][0] == "const":
+			name, typeref, value = GetConstNameTyperefValue(doc.Declaration)
+			if len(name) > 0 and not "id" in doc.Info: doc.Info["id"] = [name]
+			if len(typeref) > 0 and not "typeref" in doc.Info: doc.Info["typeref"] = [typeref]
+			if len(value) > 0 and not "value" in doc.Info: doc.Info["value"] = [value]
+		elif doc.Info["type"][0] == "field":
+			name, typeref = GetFieldNameTyperef(doc.Declaration)
+			if len(name) > 0 and not "id" in doc.Info: doc.Info["id"] = [name]
+			if len(typeref) > 0 and not "typeref" in doc.Info: doc.Info["typeref"] = [typeref]
+		elif doc.Info["type"][0] == "function":
+			name, typeref = GetFunctionNameTyperef(doc.Declaration)
+			if len(name) > 0 and not "id" in doc.Info: doc.Info["id"] = [name]
+			if len(typeref) > 0 and not "typeref" in doc.Info: doc.Info["typeref"] = [typeref]
+		elif doc.Info["type"][0] == "ctor" and "class" in doc.Info and not "id" in doc.Info:
 			name = doc.Info["class"][0]
 			doc.Info["id"] = [name + "Ctor"]
 			doc.Info["name"] = [name + " Constructor"]
+
 		if "id" in doc.Info:
 			if not "name" in doc.Info: doc.Info["name"] = [doc.Info["id"][0]]
 			
@@ -231,8 +323,13 @@ def ExportDocs(dir, name, docs, css):
 				Link(output, docLookup[doc.Info["namespace"][0]].Info)
 				output.write("</sub></div>")
 			if "class" in doc.Info and "owner" in doc.Info and doc.Info["owner"][0] in docLookup:
-				output.write("<div><sub>Class: ")
-				Link(output, docLookup[doc.Info["owner"][0]].Info)
+				parent = docLookup[doc.Info["owner"][0]]
+				output.write("<div><sub>")
+				if parent.Info["type"] == "class": output.write("Class")
+				elif parent.Info["type"] == "struct": output.write("Structure")
+				elif parent.Info["type"] == "enum": output.write("Enumeration")
+				output.write(": ")
+				Link(output, parent.Info)
 				output.write("</sub></div>")
 			if len(doc.Declaration) > 0: output.write(f"<h2>Declaration</h2><code>{HTML(doc.Declaration)}</code>")
 			AddIf(output, doc.Info, "description", "<h2>Description</h2><p>@info</p>")
@@ -265,7 +362,7 @@ def PreprocessC(csource, cdestination, name, css):
 			docLines.clear()
 			nextLineIsDoc = False
 	
-	ExportDocs("./release/c/docs", name, docs, css)
+	ExportDocs("./release/c/docs", name, docs, css, "urcl.h")
 	return rawLines, docs
 
 def InjectCIntoCPPAndPreprocess(clines, cdocs, cppsource, cppdestination, name, css):
