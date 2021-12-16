@@ -322,6 +322,12 @@ def ExportDocs(dir, name, docs, css, autoNamespace=None):
 				output.write("<div><sub>Namespace: ")
 				Link(output, docLookup[doc.Info["namespace"][0]].Info)
 				output.write("</sub></div>")
+			if "inherits" in doc.Info:
+				for parent in doc.Info["inherits"]:
+					if parent in docLookup:
+						output.write("<div><sub>Inherits: ")
+						Link(output, docLookup[parent].Info)
+						output.write("</sub></div>")
 			if "class" in doc.Info and "owner" in doc.Info and doc.Info["owner"][0] in docLookup:
 				parent = docLookup[doc.Info["owner"][0]]
 				output.write("<div><sub>")
