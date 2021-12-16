@@ -73,7 +73,7 @@ def GetFieldNameTyperef(decl):
 	else: return match.group(2), match.group(1).strip()
 
 def GetFunctionNameTyperef(decl):
-	match = re.search(r"(?:virtual\s+)?((?:[^\s]+\s+)+)([^\s]+)\s*\(", decl)
+	match = re.search(r"(?:virtual\s+)?((?:[^\s]+\s+)+)([^\s\(]+)\s*\(", decl)
 	if match == None: return "", ""
 	else: return match.group(2), match.group(1).strip()
 
