@@ -325,9 +325,9 @@ def ExportDocs(dir, name, docs, css, autoNamespace=None):
 			if "class" in doc.Info and "owner" in doc.Info and doc.Info["owner"][0] in docLookup:
 				parent = docLookup[doc.Info["owner"][0]]
 				output.write("<div><sub>")
-				if parent.Info["type"] == "class": output.write("Class")
-				elif parent.Info["type"] == "struct": output.write("Structure")
-				elif parent.Info["type"] == "enum": output.write("Enumeration")
+				if parent.Info["type"][0] == "class": output.write("Class")
+				elif parent.Info["type"][0] == "struct": output.write("Structure")
+				elif parent.Info["type"][0] == "enum": output.write("Enumeration")
 				output.write(": ")
 				Link(output, parent.Info)
 				output.write("</sub></div>")
