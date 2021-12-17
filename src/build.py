@@ -1,4 +1,5 @@
-import os, re
+import os, re, shutil
+from datetime import date
 
 DOC_PREFIX = "////"
 
@@ -193,6 +194,11 @@ def DocObjectFromDocField(parentDoc, field, isRef=False):
 		
 		return result
 
+def GetDateString():
+	months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+	today = date.today()
+	return f"{months[today.month - 1]} {today.day}, {today.year}"
+
 def ExportDocs(dir, name, docs, css, autoNamespace=None):
 	docs = docs[:]
 	groups = {}
@@ -349,7 +355,7 @@ def ExportDocs(dir, name, docs, css, autoNamespace=None):
 			children = groups[doc.Info["fullid"][0]]
 			if len(children) > 0: MemberContent(output, docLookup, children)
 			
-			output.write("</body><html>")
+			output.write(f"<div style=\"margin-top: 1em;\"><sub>Last Updated: {GetDateString()}</sub></div></body><html>")
 			output.close()
 
 def PreprocessC(csource, cdestination, name, css):
@@ -409,9 +415,13 @@ if not os.path.isdir("./src"):
 	print("Source directory not found! Make sure you run this script from the project root directory.")
 	exit(1)
 
+if os.path.isdir("./release"): shutil.rmtree("./release")
+if os.path.isdir("./docs"): shutil.rmtree("./docs")
+
 os.makedirs("./release/c/docs", exist_ok=True)
 os.makedirs("./release/cpp/docs", exist_ok=True)
 os.makedirs("./release/python/docs", exist_ok=True)
+os.makedirs("./docs", exist_ok=True)
 
 name = "URCL Parser"
 doccss = open("./src/docs.css", "r")
@@ -432,3 +442,9 @@ cppext.close()
 
 c.close()
 cpp.close()
+
+shutil.copytree("./release/cpp/docs", "./docs", dirs_exist_ok=True)
+
+index = open("./docs/index.html", "w", newline='\n')
+index.write(f"<html><head><title>{name}</title><meta http-equiv=\"Refresh\" content=\"0; url='./global.html'\"/><style>{css}</style></head><body></body></html>")
+index.close()
