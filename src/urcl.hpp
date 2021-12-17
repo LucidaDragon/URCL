@@ -39,7 +39,6 @@ namespace URCL
 {
 	using namespace Internal;
 
-	////id Label
 	////namespace URCL
 	////description Represents a location within the URCL program.
 	class Label
@@ -59,20 +58,23 @@ namespace URCL
 				Address = address;
 			}
 
-			////id GetName
 			////class Label
 			////namespace URCL
 			////description Returns the name of the label.
-			std::wstring GetName() { return Name; }
+			std::wstring GetName()
+			{
+				return Name;
+			}
 
-			////id GetAddress
 			////class Label
 			////namespace URCL
 			////description Returns the address of the label.
-			unsigned long long GetAddress() { return Address; }
+			unsigned long long GetAddress()
+			{
+				return Address;
+			}
 	};
 
-	////id ParserError
 	////namespace URCL
 	////description An exception throw when a parsing error occurs.
 	class ParserError : public std::exception
@@ -105,26 +107,31 @@ namespace URCL
 				Length = length;
 			}
 
-			////id GetMessage
 			////class ParserError
 			////namespace URCL
 			////description Returns the reported message.
-			std::wstring GetMessage() { return Message; }
+			std::wstring GetMessage()
+			{
+				return Message;
+			}
 
-			////id GetPosition
 			////class ParserError
 			////namespace URCL
 			////description Returns the position in source where the parsing error occurred.
-			unsigned long long GetPosition() { return Position; }
+			unsigned long long GetPosition()
+			{
+				return Position;
+			}
 
-			////id GetLength
 			////class ParserError
 			////namespace URCL
 			////description Returns the length of source that the parsing error occurred in.
-			unsigned long long GetLength() { return Length; }
+			unsigned long long GetLength()
+			{
+				return Length;
+			}
 	};
 
-	////id OperandType
 	////namespace URCL
 	////description Specifies types of URCL operands.
 	////fieldref Custom urcl.h::URCL_OperandType_None Specifies a user-defined operand.
@@ -149,7 +156,6 @@ namespace URCL
 		Any = URCL_OperandType_Any
 	};
 
-	////id HeaderType
 	////namespace URCL
 	////description Specifies types of URCL headers.
 	////field Custom 0 Specifies a user-defined header.
@@ -168,39 +174,53 @@ namespace URCL
 		InstructionStorage = 5
 	};
 
-	////id Operand
 	////namespace URCL
 	////description The abstract base class for all operands.
 	class Operand
 	{
 		public:
+			////class Operand
+			////namespace URCL
+			////description Returns the type of the operand.
 			virtual OperandType GetOperandType() = 0;
+			////class Operand
+			////namespace URCL
+			////description Returns a string representation of the operand.
 			virtual std::wstring ToString() = 0;
 	};
 
-	////id NumericOperand
 	////namespace URCL
+	////inherits URCL::Operand
 	////description The abstract base class for operands with a numeric value.
 	class NumericOperand : public virtual Operand
 	{
 		public:
+			////class NumericOperand
+			////namespace URCL
+			////description Returns the numeric value of the operand as a signed long long.
 			virtual long long GetSignedValue() = 0;
+			////class NumericOperand
+			////namespace URCL
+			////description Returns the numeric value of the operand as an unsigned long long.
 			virtual unsigned long long GetUnsignedValue() = 0;
 	};
 
-	////id StringOperand
 	////namespace URCL
+	////inherits URCL::Operand
 	////description The abstract base class for operands with a string value.
 	class StringOperand : public virtual Operand
 	{
 		public:
+			////class StringOperand
+			////namespace URCL
+			////description Returns the string value of the operand.
 			virtual std::wstring GetStringValue() = 0;
 
 			std::wstring ToString() { return GetStringValue(); }
 	};
 
-	////id AnyOperand
 	////namespace URCL
+	////inherits URCL::StringOperand
 	////description A generic string operand.
 	class AnyOperand : public StringOperand
 	{
@@ -208,15 +228,22 @@ namespace URCL
 			std::wstring Value;
 		
 		public:
-			AnyOperand(std::wstring value) { Value = value; }
+			////type ctor
+			////class AnyOperand
+			////namespace URCL
+			////description Creates a generic operand with the specified string.
+			AnyOperand(std::wstring value)
+			{
+				Value = value;
+			}
 
 			OperandType GetOperandType() { return OperandType::Any; }
 
 			std::wstring GetStringValue() { return Value; }
 	};
 
-	////id IndexedRegisterOperand
 	////namespace URCL
+	////inherits URCL::NumericOperand
 	////description An operand that references a general-purpose register.
 	class IndexedRegisterOperand : public NumericOperand
 	{
@@ -224,7 +251,14 @@ namespace URCL
 			unsigned long long Index;
 		
 		public:
-			IndexedRegisterOperand(unsigned long long index) { Index = index; }
+			////type ctor
+			////class IndexedRegisterOperand
+			////namespace URCL
+			////description Creates a general-purpose register operand with the specified index.
+			IndexedRegisterOperand(unsigned long long index)
+			{
+				Index = index;
+			}
 
 			OperandType GetOperandType() { return OperandType::IndexedRegister; }
 
@@ -237,8 +271,8 @@ namespace URCL
 			}
 	};
 
-	////id SpecialRegisterOperand
 	////namespace URCL
+	////inherits URCL::StringOperand
 	////description An operand that references a special-purpose register.
 	class SpecialRegisterOperand : public StringOperand
 	{
@@ -246,6 +280,10 @@ namespace URCL
 			std::wstring Name;
 		
 		public:
+			////type ctor
+			////class SpecialRegisterOperand
+			////namespace URCL
+			////description Creates a special-purpose register operand with the specified name.
 			SpecialRegisterOperand(std::wstring name)
 			{
 				Name = name;
@@ -257,8 +295,8 @@ namespace URCL
 			std::wstring GetStringValue() { return Name; }
 	};
 
-	////id ImmediateOperand
 	////namespace URCL
+	////inherits URCL::NumericOperand
 	////description An operand that is an immediate numeric value.
 	class ImmediateOperand : public NumericOperand
 	{
@@ -266,7 +304,14 @@ namespace URCL
 			unsigned long long Value;
 		
 		public:
-			ImmediateOperand(unsigned long long value) { Value = value; }
+			////type ctor
+			////class ImmediateOperand
+			////namespace URCL
+			////description Creates an immediate operand with the specified value.
+			ImmediateOperand(unsigned long long value)
+			{
+				Value = value;
+			}
 
 			OperandType GetOperandType() { return OperandType::Immediate; }
 
@@ -279,8 +324,8 @@ namespace URCL
 			}
 	};
 
-	////id MemoryAddressOperand
 	////namespace URCL
+	////inherits URCL::NumericOperand
 	////description An operand that is an immediate memory address.
 	class MemoryAddressOperand : public NumericOperand
 	{
@@ -288,7 +333,14 @@ namespace URCL
 			unsigned long long Address;
 
 		public:
-			MemoryAddressOperand(unsigned long long address) { Address = address; }
+			////type ctor
+			////class MemoryAddressOperand
+			////namespace URCL
+			////description Creates a memory address operand with the specified address.
+			MemoryAddressOperand(unsigned long long address)
+			{
+				Address = address;
+			}
 
 			OperandType GetOperandType() { return OperandType::MemoryAddress; }
 
@@ -301,8 +353,9 @@ namespace URCL
 			}
 	};
 
-	////id LabelOperand
 	////namespace URCL
+	////inherits URCL::StringOperand
+	////inherits URCL::NumericOperand
 	////description An operand that references a label address.
 	class LabelOperand : public StringOperand, public NumericOperand
 	{
@@ -310,8 +363,24 @@ namespace URCL
 			Label* LabelRef;
 		
 		public:
-			LabelOperand(std::wstring name, unsigned long long address) { LabelRef = new Label(name, address); }
-			LabelOperand(Label* label) { LabelRef = label; }
+			////type ctor
+			////class LabelOperand
+			////namespace URCL
+			////description Creates a label operand with the specified name and address.
+			LabelOperand(std::wstring name, unsigned long long address)
+			{
+				LabelRef = new Label(name, address);
+			}
+
+			////type ctor
+			////class LabelOperand
+			////namespace URCL
+			////description Creates a label operand with the specified label.
+			LabelOperand(Label* label)
+			{
+				LabelRef = label;
+			}
+
 			~LabelOperand() { delete LabelRef; }
 
 			OperandType GetOperandType() { return OperandType::Label; }
@@ -321,12 +390,25 @@ namespace URCL
 
 			std::wstring GetStringValue() { return LabelRef->GetName(); }
 
-			Label* GetLabel() { return LabelRef; }
-			void SetLabel(Label* label) { LabelRef = label; }
+			////class LabelOperand
+			////namespace URCL
+			////description Returns the label referenced by the operand.
+			Label* GetLabel()
+			{
+				return LabelRef;
+			}
+
+			////class LabelOperand
+			////namespace URCL
+			////description Sets the label referenced by the operand.
+			void SetLabel(Label* label)
+			{
+				LabelRef = label;
+			}
 	};
 
-	////id RelativeOperand
 	////namespace URCL
+	////inherits URCL::NumericOperand
 	////description An operand that references a relative address.
 	class RelativeOperand : public NumericOperand
 	{
@@ -334,7 +416,14 @@ namespace URCL
 			long long Offset;
 		
 		public:
-			RelativeOperand(long long offset) { Offset = offset; }
+			////type ctor
+			////class RelativeOperand
+			////namespace URCL
+			////description Creates a relative address operand with the specified offset.
+			RelativeOperand(long long offset)
+			{
+				Offset = offset;
+			}
 
 			OperandType GetOperandType() { return OperandType::Relative; }
 
@@ -347,8 +436,8 @@ namespace URCL
 			}
 	};
 
-	////id PortOperand
 	////namespace URCL
+	////inherits StringOperand
 	////description An operand that references a named port.
 	class PortOperand : public StringOperand
 	{
@@ -356,6 +445,10 @@ namespace URCL
 			std::wstring Port;
 		
 		public:
+			////type ctor
+			////class PortOperand
+			////namespace URCL
+			////description Creates a named port operand with the specified name.
 			PortOperand(std::wstring name)
 			{
 				Port = name;
@@ -367,7 +460,6 @@ namespace URCL
 			std::wstring GetStringValue() { return Port; }
 	};
 
-	////id Instruction
 	////namespace URCL
 	////description An operation with any number of operands.
 	class Instruction
@@ -377,8 +469,17 @@ namespace URCL
 			std::vector<Operand*> Operands;
 		
 		public:
-			Instruction() {}
+			////type ctor
+			////class Instruction
+			////namespace URCL
+			////description Creates an empty instruction.
+			Instruction()
+			{}
 
+			////type ctor
+			////class Instruction
+			////namespace URCL
+			////description Creates an instruction with the specified operation.
 			Instruction(std::wstring operation)
 			{
 				Operation = operation;
@@ -390,17 +491,63 @@ namespace URCL
 				for (size_t i = 0; i < Operands.size(); i++) delete Operands[i];
 			}
 
-			std::wstring GetOperation() { return Operation; }
-			size_t GetOperandCount() { return Operands.size(); }
-			Operand* GetOperand(size_t index) { return Operands[index]; }
+			////class Instruction
+			////namespace URCL
+			////description Returns the operation for the instruction.
+			std::wstring GetOperation()
+			{
+				return Operation;
+			}
 
-			void SetOperation(std::wstring operation) { Operation = operation; }
-			void SetOperand(size_t index, Label* label) { Operands[index] = new LabelOperand(label); }
-			void SetOperand(size_t index, Operand* operand) { Operands[index] = operand; }
-			void AddOperand(Operand* operand) { Operands.push_back(operand); }
+			////class Instruction
+			////namespace URCL
+			////description Returns the number of operands in the instruction.
+			size_t GetOperandCount()
+			{
+				return Operands.size();
+			}
+
+			////class Instruction
+			////namespace URCL
+			////description Returns the operand with the specified index.
+			Operand* GetOperand(size_t index)
+			{
+				return Operands[index];
+			}
+
+			////class Instruction
+			////namespace URCL
+			////description Sets the operation for the instruction.
+			void SetOperation(std::wstring operation)
+			{
+				Operation = operation;
+			}
+
+			////class Instruction
+			////namespace URCL
+			////description Sets the operand at the specified index to a label operand with the specified label.
+			void SetOperand(size_t index, Label* label)
+			{
+				Operands[index] = new LabelOperand(label);
+			}
+
+			////class Instruction
+			////namespace URCL
+			////description Sets the operand at the specified index to the specified operand.
+			void SetOperand(size_t index, Operand* operand)
+			{
+				Operands[index] = operand;
+			}
+
+			////class Instruction
+			////namespace URCL
+			////description Adds the specified operand to the list of operands in the instruction.
+			void AddOperand(Operand* operand)
+			{
+				Operands.push_back(operand);
+			}
 	};
 
-	////id Header
 	////namespace URCL
 	////description A header with an optional argument.
 	class Header
@@ -410,6 +557,10 @@ namespace URCL
 			Operand* Argument;
 		
 		public:
+			////type ctor
+			////class Header
+			////namespace URCL
+			////description Creates a header with the specified name.
 			Header(std::wstring name)
 			{
 				Name = name;
@@ -417,6 +568,10 @@ namespace URCL
 				Argument = 0;
 			}
 
+			////type ctor
+			////class Header
+			////namespace URCL
+			////description Creates a header with the specified name and argument.
 			Header(std::wstring name, Operand* argument)
 			{
 				Name = name;
@@ -429,12 +584,33 @@ namespace URCL
 				if (Argument != 0) delete Argument;
 			}
 
-			std::wstring GetName() { return Name; }
+			////class Header
+			////namespace URCL
+			////description Returns the name of the header.
+			std::wstring GetName()
+			{
+				return Name;
+			}
 
-			bool HasOperand() { return Argument != 0; }
+			////class Header
+			////namespace URCL
+			////description Returns true if the header argument is not null or false otherwise.
+			bool HasArgument()
+			{
+				return Argument != 0;
+			}
 
-			URCL::Operand* GetOperand() { return Argument; }
+			////class Header
+			////namespace URCL
+			////description Returns the header argument or null if no argument is present.
+			URCL::Operand* GetArgument()
+			{
+				return Argument;
+			}
 
+			////class Header
+			////namespace URCL
+			////description Returns the type of the header based on the name.
 			HeaderType GetHeaderType()
 			{
 				if (Name == L"BITS") return HeaderType::Bits;
@@ -446,17 +622,25 @@ namespace URCL
 			}
 	};
 
-	////id ExportTarget
 	////namespace URCL
 	////description An interface for exporting a finished program.
 	class ExportTarget
 	{
 		public:
+			////class ExportTarget
+			////namespace URCL
+			////description Emits the specified instruction to the exported result.
 			virtual void Emit(Instruction* instruction) = 0;
+			////class ExportTarget
+			////namespace URCL
+			////description Adds the specified label to the exported result.
 			virtual void AddLabel(Label* label) = 0;
+			////class ExportTarget
+			////namespace URCL
+			////description Adds the specified header to the exported result.
+			virtual void AddHeader(Header* header) = 0;
 	};
 
-	////id Program
 	////namespace URCL
 	////description A builder class for URCL programs.
 	class Program
@@ -472,6 +656,9 @@ namespace URCL
 				Clear();
 			}
 
+			////class Program
+			////namespace URCL
+			////description Disposes of all instructions, labels, and headers and clears the internal lists.
 			void Clear()
 			{
 				for (size_t i = 0; i < Instructions.size(); i++) delete Instructions[i];
@@ -482,6 +669,9 @@ namespace URCL
 				Headers.clear();
 			}
 
+			////class Program
+			////namespace URCL
+			////description Parses the specified source and retains the instructions, labels, and headers.
 			void AddSource(std::wstring source)
 			{
 				unsigned long length = source.length();
@@ -563,31 +753,49 @@ namespace URCL
 				}
 			}
 
+			////class Program
+			////namespace URCL
+			////description Adds a header with the specified name.
 			void AddHeader(std::wstring name)
 			{
 				Headers.push_back(new Header(name));
 			}
 
-			void AddHeader(std::wstring name, Operand* operand)
+			////class Program
+			////namespace URCL
+			////description Adds a header with the specified name and argument.
+			void AddHeader(std::wstring name, Operand* argument)
 			{
-				Headers.push_back(new Header(name, operand));
+				Headers.push_back(new Header(name, argument));
 			}
 
+			////class Program
+			////namespace URCL
+			////description Adds a generic header with the specified name and value.
 			void AddHeader(std::wstring name, std::wstring value)
 			{
 				Headers.push_back(new Header(name, new AnyOperand(value)));
 			}
 
+			////class Program
+			////namespace URCL
+			////description Adds the specified header.
 			void AddHeader(Header* header)
 			{
 				Headers.push_back(header);
 			}
 
+			////class Program
+			////namespace URCL
+			////description Adds an instruction with the specified operation.
 			void Emit(std::wstring operation)
 			{
 				Emit(new Instruction(operation));
 			}
 
+			////class Program
+			////namespace URCL
+			////description Adds an instruction with the specified operation and operand.
 			void Emit(std::wstring operation, Operand* operandA)
 			{
 				Instruction* instruction = new Instruction(operation);
@@ -595,6 +803,9 @@ namespace URCL
 				Emit(instruction);
 			}
 
+			////class Program
+			////namespace URCL
+			////description Adds an instruction with the specified operation and two operands.
 			void Emit(std::wstring operation, Operand* operandA, Operand* operandB)
 			{
 				Instruction* instruction = new Instruction(operation);
@@ -603,6 +814,9 @@ namespace URCL
 				Emit(instruction);
 			}
 
+			////class Program
+			////namespace URCL
+			////description Adds an instruction with the specified operation and three operands.
 			void Emit(std::wstring operation, Operand* operandA, Operand* operandB, Operand* operandC)
 			{
 				Instruction* instruction = new Instruction(operation);
@@ -612,21 +826,33 @@ namespace URCL
 				Emit(instruction);
 			}
 
+			////class Program
+			////namespace URCL
+			////description Adds the specified instruction.
 			void Emit(Instruction* instruction)
 			{
 				Instructions.push_back(instruction);
 			}
 
+			////class Program
+			////namespace URCL
+			////description Adds an unnamed label at the current address.
 			Label* MarkLabel()
 			{
 				return MarkLabel(L"");
 			}
 
+			////class Program
+			////namespace URCL
+			////description Adds a label at the current address with the specified name.
 			Label* MarkLabel(std::wstring name)
 			{
 				return AddLabel(name, Instructions.size());
 			}
 
+			////class Program
+			////namespace URCL
+			////description Adds a label with the specified name and address.
 			Label* AddLabel(std::wstring name, unsigned long long address)
 			{
 				Label* result = new Label(name, address);
@@ -634,19 +860,21 @@ namespace URCL
 				return result;
 			}
 
+			////class Program
+			////namespace URCL
+			////description Adds the specified label.
 			void AddLabel(Label* label)
 			{
 				Labels.push_back(label);
 			}
 
-			void Export(ExportTarget* target)
-			{
-				Export(target, false);
-			}
-
+			////class Program
+			////namespace URCL
+			////description Exports the entire program to the specified target. Optionally exports labels before instructions and headers if exportLabelsFirst is true.
 			void Export(ExportTarget* target, bool exportLabelsFirst)
 			{
 				if (exportLabelsFirst) for (Label* label : Labels) target->AddLabel(label);
+				for (Header* header : Headers) target->AddHeader(header);
 				for (Instruction* instruction : Instructions) target->Emit(instruction);
 				if (!exportLabelsFirst) for (Label* label : Labels) target->AddLabel(label);
 			}
