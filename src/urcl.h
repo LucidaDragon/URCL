@@ -1303,8 +1303,8 @@ bool URCL_TryParseSource(const URCL_Char* source, unsigned long length, URCL_Ins
 		unsigned long offset = 0;
 		if (URCL_TryParseLabelLine(source, length, &labelName, &offset))
 		{
-			labels[labelsLength]->Name = labelName;
-			labels[labelsLength]->Address = resultLength;
+			(*labels)[labelsLength].Name = labelName;
+			(*labels)[labelsLength].Address = resultLength;
 			labelsLength++;
 			
 			if (labelsLength == labelsCapacity)
