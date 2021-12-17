@@ -546,6 +546,18 @@ namespace URCL
 			{
 				Operands.push_back(operand);
 			}
+
+			////class Instruction
+			////namespace URCL
+			////description Returns a string representation of the instruction.
+			std::wstring ToString()
+			{
+				std::wstring operands = L"";
+
+				for (Operand* operand : Operands) operands += L" " + operand->ToString();
+
+				return Operation + operands;
+			}
 	};
 
 	////namespace URCL
@@ -619,6 +631,14 @@ namespace URCL
 				else if (Name == L"MINSTACK") return HeaderType::MinimumStack;
 				else if (Name == L"RUN") return HeaderType::InstructionStorage;
 				else return HeaderType::Custom;
+			}
+
+			////class Header
+			////namespace URCL
+			////description Returns a string representation of the header.
+			std::wstring ToString()
+			{
+				return Name + L" " + Argument->ToString();
 			}
 	};
 
@@ -877,6 +897,27 @@ namespace URCL
 				for (Header* header : Headers) target->AddHeader(header);
 				for (Instruction* instruction : Instructions) target->Emit(instruction);
 				if (!exportLabelsFirst) for (Label* label : Labels) target->AddLabel(label);
+			}
+
+			////class Program
+			////namespace URCL
+			////description Returns a string representation of the program.
+			std::wstring ToString()
+			{
+				std::wstring result = L"";
+
+				for (Header* header : Headers) result += header->ToString();
+				for (size_t i = 0; i < Instructions.size(); i++)
+				{
+					for (Label* label : Labels)
+					{
+						if (label->GetAddress() == i) result += label->GetName() + L"\n";
+					}
+
+					result += Instructions[i]->ToString() + L"\n";
+				}
+
+				return result;
 			}
 
 		private:
