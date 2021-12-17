@@ -140,9 +140,9 @@ const URCL_Char* URCL_Prefixes_Immediate = u"0123456789";
 ////description The allowed prefix characters for relative addresses.
 const URCL_Char* URCL_Prefixes_Relative = u"~";
 ////description The allowed prefix characters for addresses.
-const URCL_Char* URCL_Prefixes_Memory = u"Mm";
+const URCL_Char* URCL_Prefixes_Memory = u"Mm#";
 ////description The allowed prefix characters for registers.
-const URCL_Char* URCL_Prefixes_Register = u"Rr";
+const URCL_Char* URCL_Prefixes_Register = u"Rr$";
 
 ////description The name of the BITS header.
 const URCL_Char* URCL_Header_Bits = u"BITS";
