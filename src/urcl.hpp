@@ -906,7 +906,7 @@ namespace URCL
 			{
 				std::wstring result = L"";
 
-				for (Header* header : Headers) result += header->ToString();
+				for (Header* header : Headers) result += header->ToString() + L"\n";
 				for (size_t i = 0; i < Instructions.size(); i++)
 				{
 					for (Label* label : Labels)
