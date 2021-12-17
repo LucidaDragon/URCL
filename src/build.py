@@ -279,6 +279,12 @@ def ExportDocs(dir, name, docs, css, autoNamespace=None):
 				if "class" in doc.Info: doc.Info["fullid"] = [doc.Info["class"][0] + "::" + doc.Info["fullid"][0]]
 				if "namespace" in doc.Info: doc.Info["fullid"] = [doc.Info["namespace"][0] + "::" + doc.Info["fullid"][0]]
 
+			baseId = doc.Info["fullid"][0]
+			idIndex = 1
+			while doc.Info["fullid"][0] in docLookup:
+				doc.Info["fullid"][0] = baseId + str(idIndex)
+				idIndex += 1
+
 			if not "owner" in doc.Info:
 				owner = ""
 				if "class" in doc.Info and "namespace" in doc.Info:
