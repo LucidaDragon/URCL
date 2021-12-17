@@ -2,35 +2,38 @@
 #include <string>
 #include <vector>
 
-namespace URCL::Internal
+namespace URCL
 {
-	extern "C"
+	namespace Internal
 	{
-	#include "urcl.h"
-	}
-
-	void URCL_StringToUpper(std::wstring* str)
-	{
-		for (size_t i = 0; i < str->length(); i++)
+		extern "C"
 		{
-			if ((*str)[i] >= 'a' && (*str)[i] <= 'z') (*str)[i] = ((*str)[i] - 'a') + 'A';
+		#include "urcl.h"
 		}
-	}
 
-	URCL_Char* URCL_StringToChars(std::wstring str)
-	{
-		size_t length = str.length();
-		URCL_Char* result = new URCL_Char[length + 1];
-		for (size_t i = 0; i < length; i++) result[i] = (URCL_Char)str[i];
-		result[length] = 0;
-		return result;
-	}
+		void URCL_StringToUpper(std::wstring* str)
+		{
+			for (size_t i = 0; i < str->length(); i++)
+			{
+				if ((*str)[i] >= 'a' && (*str)[i] <= 'z') (*str)[i] = ((*str)[i] - 'a') + 'A';
+			}
+		}
 
-	std::wstring URCL_CharsToString(const URCL_Char* chars, size_t length)
-	{
-		std::wstring result = std::wstring(length, '\0');
-		for (size_t i = 0; i < length; i++) result[i] = (wchar_t)chars[i];
-		return result;
+		URCL_Char* URCL_StringToChars(std::wstring str)
+		{
+			size_t length = str.length();
+			URCL_Char* result = new URCL_Char[length + 1];
+			for (size_t i = 0; i < length; i++) result[i] = (URCL_Char)str[i];
+			result[length] = 0;
+			return result;
+		}
+
+		std::wstring URCL_CharsToString(const URCL_Char* chars, size_t length)
+		{
+			std::wstring result = std::wstring(length, '\0');
+			for (size_t i = 0; i < length; i++) result[i] = (wchar_t)chars[i];
+			return result;
+		}
 	}
 }
 
