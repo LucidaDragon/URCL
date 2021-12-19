@@ -1,4 +1,4 @@
-import os, re, shutil, subprocess, distutils.dir_util
+import os, re, shutil, subprocess, distutils.dir_util, sys
 from datetime import date
 
 DOC_PREFIX = "////"
@@ -368,7 +368,7 @@ def PreprocessC(csource, cdestination, name, css):
 	for rawLine in rawLines:
 		line = rawLine.strip()
 
-		if not line.startswith(DOC_PREFIX):
+		if (not line.startswith(DOC_PREFIX)) and cdestination != None:
 			cdestination.write(rawLine)
 		
 		if line.startswith(DOC_PREFIX):
@@ -392,12 +392,12 @@ def InjectCIntoCPPAndPreprocess(clines, cdocs, cppsource, cppdestination, name, 
 	for rawLine in cppsource.readlines():
 		line = rawLine.strip()
 
-		if line.lower() == "#include \"urcl.h\"":
+		if line.lower() == "#include \"urcl.h\"" and cppdestination != None:
 			for cRawLine in clines:
 				if not cRawLine.strip().startswith(DOC_PREFIX):
 					cppdestination.write(f"\t{cRawLine}")
 			cppdestination.write("\n")
-		elif not line.startswith(DOC_PREFIX):
+		elif not line.startswith(DOC_PREFIX) and cppdestination != None:
 			cppdestination.write(rawLine)
 		
 		if line.startswith(DOC_PREFIX):
@@ -415,36 +415,48 @@ if not os.path.isdir("./src"):
 	print("Source directory not found! Make sure you run this script from the project root directory.")
 	exit(1)
 
+if len(sys.argv) > 1:
+	tasks = []
+	for i in range(1, len(sys.argv)): tasks.append(sys.argv[i].strip().upper())
+else:
+	tasks = ["C", "C++", "PYTHON", "DOCS"]
+
+TASK_C = "C" in tasks
+TASK_CPP = "C++" in tasks
+TASK_PYTHON = "PYTHON" in tasks
+TASK_DOCS = "DOCS" in tasks
+
 if os.path.isdir("./release"): shutil.rmtree("./release")
 if os.path.isdir("./build"): shutil.rmtree("./build")
-if os.path.isdir("./docs"): shutil.rmtree("./docs")
+if TASK_DOCS and os.path.isdir("./docs"): shutil.rmtree("./docs")
 
 os.makedirs("./release/c/docs", exist_ok=True)
 os.makedirs("./release/cpp/docs", exist_ok=True)
 os.makedirs("./release/python/docs", exist_ok=True)
-os.makedirs("./build", exist_ok=True)
+if TASK_PYTHON:
+	os.makedirs("./build", exist_ok=True)
 
-if os.path.isfile("./src/compile.py"):
-	import compile
-else:
-	print("./src/compile.py not found. Using default gcc build commands.")
-	code = subprocess.Popen("gcc -c -m32 -shared -fPIC ./src/urcl.py.c -o ./build/urcl32.o", shell=True).wait()
-	if code != 0:
-		print("GCC build (32-bit) exited with code:", str(code))
-		exit(1)
-	code = subprocess.Popen("gcc -c -m64 -shared -fPIC ./src/urcl.py.c -o ./build/urcl64.o", shell=True).wait()
-	if code != 0:
-		print("GCC build (64-bit) exited with code:", str(code))
-		exit(1)
-	code = subprocess.Popen(f"gcc -m32 -shared -fPIC -Wl,-soname,urcl32.lib -o ./release/python/urcl32.lib ./build/urcl32.o", shell=True).wait()
-	if code != 0:
-		print("GCC link (32-bit) exited with code:", str(code))
-		exit(1)
-	code = subprocess.Popen(f"gcc -m64 -shared -fPIC -Wl,-soname,urcl64.lib -o ./release/python/urcl64.lib ./build/urcl64.o", shell=True).wait()
-	if code != 0:
-		print("GCC link (64-bit) exited with code:", str(code))
-		exit(1)
-	shutil.copyfile("./src/urcl.py", "./release/python/urcl.py")
+	if os.path.isfile("./src/compile.py"):
+		import compile
+	else:
+		print("./src/compile.py not found. Using default gcc build commands.")
+		code = subprocess.Popen("gcc -c -m32 -shared -fPIC ./src/urcl.py.c -o ./build/urcl32.o", shell=True).wait()
+		if code != 0:
+			print("GCC build (32-bit) exited with code:", str(code))
+			exit(1)
+		code = subprocess.Popen("gcc -c -m64 -shared -fPIC ./src/urcl.py.c -o ./build/urcl64.o", shell=True).wait()
+		if code != 0:
+			print("GCC build (64-bit) exited with code:", str(code))
+			exit(1)
+		code = subprocess.Popen(f"gcc -m32 -shared -fPIC -Wl,-soname,urcl32.lib -o ./release/python/urcl32.lib ./build/urcl32.o", shell=True).wait()
+		if code != 0:
+			print("GCC link (32-bit) exited with code:", str(code))
+			exit(1)
+		code = subprocess.Popen(f"gcc -m64 -shared -fPIC -Wl,-soname,urcl64.lib -o ./release/python/urcl64.lib ./build/urcl64.o", shell=True).wait()
+		if code != 0:
+			print("GCC link (64-bit) exited with code:", str(code))
+			exit(1)
+		shutil.copyfile("./src/urcl.py", "./release/python/urcl.py")
 
 name = "URCL Parser"
 doccss = open("./src/docs.css", "r")
@@ -454,8 +466,10 @@ doccss.close()
 csource = open("./src/urcl.h", "r")
 cppext = open("./src/urcl.hpp", "r")
 
-c = open("./release/c/urcl.h", "w", newline='\n')
-cpp = open("./release/cpp/urcl.hpp", "w", newline='\n')
+c = None
+if TASK_C: c = open("./release/c/urcl.h", "w", newline='\n')
+cpp = None
+if TASK_CPP: cpp = open("./release/cpp/urcl.hpp", "w", newline='\n')
 
 clines, cdocs = PreprocessC(csource, c, name, css)
 InjectCIntoCPPAndPreprocess(clines, cdocs, cppext, cpp, name, css)
@@ -463,13 +477,17 @@ InjectCIntoCPPAndPreprocess(clines, cdocs, cppext, cpp, name, css)
 csource.close()
 cppext.close()
 
-c.close()
-cpp.close()
+if c != None: c.close()
+if cpp != None: cpp.close()
 
-distutils.dir_util.copy_tree("./release/cpp/docs", "./docs")
+if TASK_DOCS:
+	distutils.dir_util.copy_tree("./release/cpp/docs", "./docs")
+	index = open("./docs/index.html", "w", newline='\n')
+	index.write(f"<html><head><title>{name}</title><meta http-equiv=\"Refresh\" content=\"0; url='./global.html'\"/><style>{css}</style></head><body></body></html>")
+	index.close()
 
-index = open("./docs/index.html", "w", newline='\n')
-index.write(f"<html><head><title>{name}</title><meta http-equiv=\"Refresh\" content=\"0; url='./global.html'\"/><style>{css}</style></head><body></body></html>")
-index.close()
-
-shutil.rmtree("./build")
+if TASK_PYTHON: shutil.rmtree("./build")
+if not TASK_C: shutil.rmtree("./release/c")
+if not TASK_CPP: shutil.rmtree("./release/cpp")
+if not TASK_PYTHON: shutil.rmtree("./release/python")
+if len(os.listdir("./release")) == 0: shutil.rmtree("./release")

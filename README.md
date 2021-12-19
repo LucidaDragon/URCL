@@ -4,6 +4,16 @@ A parser for the URCL language written for C, C++, and Python.
 ## Building the Library
 To build this library you with need to run ./src/build.py from the project root directory using Python 3.
 
+By default the script will build all versions of the library, invoke GCC to build the library binaries, and generate the documentation. To build only a specific version or just the documentation, use any number of the following arguments when invoking the script:
+| Task Argument | Description                                                       |
+| ------------- | ----------------------------------------------------------------- |
+| C             | Output the C header and C docs only.                              |
+| C++           | Output the C++ header and combined C++/C docs only.               |
+| Python        | Output the Python module, library binaries, and Python docs only. |
+| Docs          | Output the public documentation only.                             |
+
+To use a compiler other than GCC for building the library binaries, create ./src/compile.py and write your own script. It will automatically be invoked by the build script instead of GCC.
+
 ## Using the Library
 
 ### C
