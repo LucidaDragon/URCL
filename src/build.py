@@ -1,4 +1,4 @@
-import os, re, shutil, subprocess
+import os, re, shutil, subprocess, distutils.dir_util
 from datetime import date
 
 DOC_PREFIX = "////"
@@ -466,7 +466,7 @@ cppext.close()
 c.close()
 cpp.close()
 
-shutil.copytree("./release/cpp/docs", "./docs", dirs_exist_ok=True)
+distutils.dir_util.copy_tree("./release/cpp/docs", "./docs")
 
 index = open("./docs/index.html", "w", newline='\n')
 index.write(f"<html><head><title>{name}</title><meta http-equiv=\"Refresh\" content=\"0; url='./global.html'\"/><style>{css}</style></head><body></body></html>")
