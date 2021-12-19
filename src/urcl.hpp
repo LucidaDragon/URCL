@@ -728,14 +728,18 @@ namespace URCL
 							catch (ParserError ex)
 							{
 								URCL_FreeInstructions(headers, headersCount);
+								URCL_free(headers);
 								URCL_FreeLabels(labels, labelsCount);
+								URCL_free(labels);
 								URCL_FreeInstructions(instructions, instructionCount);
+								URCL_free(instructions);
 								throw ex;
 							}
 						}
 					}
 
 					URCL_FreeInstructions(headers, headersCount);
+					URCL_free(headers);
 
 					for (unsigned long i = 0; i < labelsCount; i++)
 					{
@@ -744,6 +748,7 @@ namespace URCL
 					}
 
 					URCL_FreeLabels(labels, labelsCount);
+					URCL_free(labels);
 
 					for (unsigned long i = 0; i < instructionCount; i++)
 					{
@@ -761,6 +766,7 @@ namespace URCL
 							catch (ParserError ex)
 							{
 								URCL_FreeInstructions(instructions, instructionCount);
+								URCL_free(instructions);
 								throw ex;
 							}
 						}
@@ -769,6 +775,7 @@ namespace URCL
 					}
 
 					URCL_FreeInstructions(instructions, instructionCount);
+					URCL_free(instructions);
 				}
 				else
 				{
