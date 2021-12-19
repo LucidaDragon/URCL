@@ -1,5 +1,8 @@
 /.vscode
 /debug
 /release
+/build
 /src/debug.c
 /src/debug.cpp
+/src/compile.py
+/src/__pycache__
