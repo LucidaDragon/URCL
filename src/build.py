@@ -428,19 +428,19 @@ if os.path.isfile("./src/compile.py"):
 	import compile
 else:
 	print("./src/compile.py not found. Using default gcc build commands.")
-	code = subprocess.Popen("gcc -m32 -shared -fPIC ./src/urcl.py.c -o ./build/urcl32.o", shell=True).wait()
+	code = subprocess.Popen("gcc -c -m32 -shared -fPIC ./src/urcl.py.c -o ./build/urcl32.o", shell=True).wait()
 	if code != 0:
 		print("GCC build (32-bit) exited with code:", str(code))
 		exit(1)
-	code = subprocess.Popen("gcc -m64 -shared -fPIC ./src/urcl.py.c -o ./build/urcl64.o", shell=True).wait()
+	code = subprocess.Popen("gcc -c -m64 -shared -fPIC ./src/urcl.py.c -o ./build/urcl64.o", shell=True).wait()
 	if code != 0:
 		print("GCC build (64-bit) exited with code:", str(code))
 		exit(1)
-	code = subprocess.Popen(f"gcc -m32 -shared -Wl,-soname,urcl32.lib -o ./release/python/urcl32.lib ./build/urcl32.o", shell=True).wait()
+	code = subprocess.Popen(f"gcc -m32 -shared -fPIC -Wl,-soname,urcl32.lib -o ./release/python/urcl32.lib ./build/urcl32.o", shell=True).wait()
 	if code != 0:
 		print("GCC link (32-bit) exited with code:", str(code))
 		exit(1)
-	code = subprocess.Popen(f"gcc -m64 -shared -Wl,-soname,urcl64.lib -o ./release/python/urcl64.lib ./build/urcl64.o", shell=True).wait()
+	code = subprocess.Popen(f"gcc -m64 -shared -fPIC -Wl,-soname,urcl64.lib -o ./release/python/urcl64.lib ./build/urcl64.o", shell=True).wait()
 	if code != 0:
 		print("GCC link (64-bit) exited with code:", str(code))
 		exit(1)
