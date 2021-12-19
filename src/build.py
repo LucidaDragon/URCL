@@ -1,4 +1,4 @@
-import os, re, shutil
+import os, re, shutil, subprocess
 from datetime import date
 
 DOC_PREFIX = "////"
@@ -416,12 +416,35 @@ if not os.path.isdir("./src"):
 	exit(1)
 
 if os.path.isdir("./release"): shutil.rmtree("./release")
+if os.path.isdir("./build"): shutil.rmtree("./build")
 if os.path.isdir("./docs"): shutil.rmtree("./docs")
 
 os.makedirs("./release/c/docs", exist_ok=True)
 os.makedirs("./release/cpp/docs", exist_ok=True)
 os.makedirs("./release/python/docs", exist_ok=True)
-os.makedirs("./docs", exist_ok=True)
+os.makedirs("./build", exist_ok=True)
+
+if os.path.isfile("./src/compile.py"):
+	import compile
+else:
+	print("./src/compile.py not found. Using default gcc build commands.")
+	code = subprocess.Popen("gcc -m32 -shared -fPIC ./src/urcl.py.c -o ./build/urcl32.o", shell=True).wait()
+	if code != 0:
+		print("GCC build (32-bit) exited with code:", str(code))
+		exit(1)
+	code = subprocess.Popen("gcc -m64 -shared -fPIC ./src/urcl.py.c -o ./build/urcl64.o", shell=True).wait()
+	if code != 0:
+		print("GCC build (64-bit) exited with code:", str(code))
+		exit(1)
+	code = subprocess.Popen(f"gcc -m32 -shared -Wl,-soname,urcl32.lib -o ./release/python/urcl32.lib ./build/urcl32.o", shell=True).wait()
+	if code != 0:
+		print("GCC link (32-bit) exited with code:", str(code))
+		exit(1)
+	code = subprocess.Popen(f"gcc -m64 -shared -Wl,-soname,urcl64.lib -o ./release/python/urcl64.lib ./build/urcl64.o", shell=True).wait()
+	if code != 0:
+		print("GCC link (64-bit) exited with code:", str(code))
+		exit(1)
+	shutil.copyfile("./src/urcl.py", "./release/python/urcl.py")
 
 name = "URCL Parser"
 doccss = open("./src/docs.css", "r")
@@ -448,3 +471,5 @@ shutil.copytree("./release/cpp/docs", "./docs", dirs_exist_ok=True)
 index = open("./docs/index.html", "w", newline='\n')
 index.write(f"<html><head><title>{name}</title><meta http-equiv=\"Refresh\" content=\"0; url='./global.html'\"/><style>{css}</style></head><body></body></html>")
 index.close()
+
+shutil.rmtree("./build")
