@@ -4,6 +4,11 @@
 ////type namespace
 #define URCL_Available
 
+#ifdef URCL_NoSizeT
+	////description Defines size_t as an unsigned long long if the URCL_NoSizeT macro is defined.
+	typedef unsigned long long size_t;
+#endif
+
 ////type function
 ////description An interface for allocating memory. This function must be defined by the consumer if the URCL_NoDependencies macro is defined.
 void* URCL_malloc(size_t size);
